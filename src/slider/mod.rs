@@ -19,12 +19,23 @@ impl Plugin for SliderPlugin {
 
 // TODO: we may want to separate the "settings" from the "value"
 // it could help especially with simplifying Changed<> queries.
-#[derive(Component, Clone, Debug, Default)]
+#[derive(Component, Clone, Debug)]
 pub struct Slider {
     pub value: i32,
     pub min: i32,
     pub max: i32,
     pub step: i32,
+}
+
+impl Default for Slider {
+    fn default() -> Self {
+        Self {
+            value: 0,
+            min: 0,
+            max: 100,
+            step: 1,
+        }
+    }
 }
 
 /// Marker component for Slider's thumb
@@ -183,9 +194,6 @@ fn slider_thumb_move(
 
     for root in thumb_q.iter() {
         if let Ok(mut slider) = slider_q.get_mut(root.0) {
-            // TODO: get cursor pos relative to min.x and max.x.
-            //  from that pos, do a cross product to get value from min and max.
-
             if let Some((_, node, global_transform, clip)) = track_q
                 .iter()
                 .find(|(track_root, ..)| track_root.0 == root.0)
@@ -203,8 +211,14 @@ fn slider_thumb_move(
 
                 if let Some(cursor_position) = cursor_position {
                     let x = f32::clamp(cursor_position.x, min.x, max.x) - min.x;
-                    slider.value =
-                        ((x * (slider.max - slider.min) as f32) / (max.x - min.x)) as i32;
+                    let mut value = ((x * (slider.max - slider.min) as f32) / (max.x - min.x)) as i32;
+
+                    assert!(slider.step > 0 && slider.step <= slider.max - slider.min);
+                    if slider.step > 1 {
+                        value = ((value + slider.step / 2) / slider.step) * slider.step;
+                    }
+
+                    slider.value = value;
                 }
             }
         }
