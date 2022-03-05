@@ -114,7 +114,7 @@ fn position_update_system(
                 };
             }
             TooltipPosition::Rect(rect) => {
-                style.position = rect;
+                style.position = *rect;
             }
             _ => (),
         }
