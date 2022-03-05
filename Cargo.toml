@@ -1,0 +1,27 @@
+[package]
+name = "bevy_ui_widgets"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+# TODO: Change these when merged
+bevy_app = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
+bevy_ecs = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
+bevy_math = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
+bevy_render = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
+bevy_text = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
+bevy_transform = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
+bevy_ui = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
+bevy_window = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
+
+[dev-dependencies]
+# TODO: Change this when merged
+bevy = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
+
+[[example]]
+name = "tooltip"
+path = "examples/tooltip.rs"
+
+[[example]]
+name = "tooltip_custom"
+path = "examples/tooltip_custom.rs"
