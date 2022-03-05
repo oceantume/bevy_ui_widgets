@@ -1,5 +1,3 @@
-// rewriting tooltip as an "extension" of a Node (not standalone)
-
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use bevy_math::prelude::*;
@@ -42,7 +40,7 @@ pub enum TooltipPosition {
 /// Describes the alignment of the tooltip relative to its position.
 /// This will be ignored when using a Rect position.
 ///
-/// TODO: This should maybe be combinations like BottomLeft, Left, TopLeft, Top, etc
+/// TODO: This should support combinations like BottomLeft, Left, TopLeft, Top, etc
 #[derive(Component)]
 pub enum TooltipAlign {
     Left,
@@ -51,25 +49,22 @@ pub enum TooltipAlign {
     Bottom,
 }
 
-/// The tooltip's text. When present, the text will automatically be copied to the tooltip's child text node.
+/// The tooltip's text.
+///
+/// When present, the text will automatically be copied to the tooltip's child text node.
 #[derive(Component)]
 pub struct TooltipText(pub Text);
 
 #[derive(Component)]
 pub struct TooltipUiNodes {
-    /// Simple node create via NodeBundle
+    /// Root node created via NodeBundle
     pub root: Entity,
     /// Text node created via TextBundle
     pub text: Entity,
 }
 
-/// Marker component used to identify the container node.
-/// Also has a field that points back to the root entity that has the Tooltip component.
-//#[derive(Component)]
-//pub struct TooltipContainerUiNode(Entity);
-
 /// Marker component used to identify the text node.
-/// Also contains the root entity that has the Tooltip component.
+/// Also contains a reference to the tooltip's root entity.
 #[derive(Component)]
 pub struct TooltipTextUiNode(pub Entity);
 
@@ -85,7 +80,7 @@ fn tooltip_init_system(
                         margin: Rect::all(Val::Px(5.0)),
                         ..Default::default()
                     },
-                    text: text.map(|t| t.0.clone()).unwrap_or_default().into(),
+                    text: text.map(|t| t.0.clone()).unwrap_or_default(),
                     ..Default::default()
                 })
                 .insert(TooltipTextUiNode(root))
@@ -119,7 +114,7 @@ fn position_update_system(
                 };
             }
             TooltipPosition::Rect(rect) => {
-                style.position = rect.clone();
+                style.position = rect;
             }
             _ => (),
         }
@@ -132,19 +127,16 @@ fn position_update_cursor_system(
     windows: Res<Windows>,
 ) {
     for (position, _, mut style) in tooltip_q.iter_mut() {
-        match position {
-            TooltipPosition::FollowCursor => {
-                let window = windows.get_primary().unwrap();
-                if let Some(pos) = window.cursor_position() {
-                    // TODO: We probably want to base this on the ui camera projection here.
-                    style.position = Rect {
-                        top: Val::Px(window.height() - pos.y + 5.),
-                        left: Val::Px(pos.x + 5.),
-                        ..Default::default()
-                    }
+        if let TooltipPosition::FollowCursor = position {
+            let window = windows.get_primary().unwrap();
+            if let Some(pos) = window.cursor_position() {
+                // TODO: We probably want to base this on the ui camera projection here.
+                style.position = Rect {
+                    top: Val::Px(window.height() - pos.y + 5.),
+                    left: Val::Px(pos.x + 5.),
+                    ..Default::default()
                 }
             }
-            _ => (),
         }
     }
 }

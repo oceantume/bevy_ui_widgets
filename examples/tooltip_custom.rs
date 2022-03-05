@@ -35,7 +35,10 @@ fn setup_text(
     my_tooltip: Res<MyTooltip>,
     asset_server: Res<AssetServer>,
 ) {
-    if let Some((_, mut text)) = tooltip_q.iter_mut().find(|(node, _)| node.0 == my_tooltip.0) {
+    if let Some((_, mut text)) = tooltip_q
+        .iter_mut()
+        .find(|(node, _)| node.0 == my_tooltip.0)
+    {
         *text = Text::with_section(
             "Hello, tooltip!",
             TextStyle {
