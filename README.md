@@ -19,3 +19,11 @@ This was started recently and is still under development. This is still just an 
 A tooltip is a box that "floats" over other UI elements and contains some text.
 
 Tooltips are useful to display additional information to users when they mouse-over or select something on the screen.
+
+![Tooltip](docs/assets/tooltip.jpg)
+
+### Slider
+
+A slider allows to make selections from a range of values.
+
+![Slider](docs/assets/slider.jpg)
