@@ -25,3 +25,7 @@ path = "examples/tooltip.rs"
 [[example]]
 name = "tooltip_custom"
 path = "examples/tooltip_custom.rs"
+
+[[example]]
+name = "slider"
+path = "examples/slider.rs"
