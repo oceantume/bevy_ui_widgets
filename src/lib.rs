@@ -4,6 +4,7 @@ use bevy_app::{PluginGroup, PluginGroupBuilder};
 
 pub mod slider;
 pub mod tooltip;
+pub mod utils;
 
 pub struct AllWidgetsPlugins;
 

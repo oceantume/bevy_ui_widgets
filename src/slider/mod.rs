@@ -6,6 +6,8 @@ use bevy_transform::{components::*, hierarchy::BuildChildren};
 use bevy_ui::{entity::*, *};
 use bevy_window::*;
 
+use crate::utils::get_uinode_clipped_rect;
+
 pub struct SliderPlugin;
 
 impl Plugin for SliderPlugin {
@@ -136,16 +138,7 @@ fn slider_thumb_update(
                 .iter()
                 .find(|(track_root, ..)| track_root.0 == root.0)
             {
-                let position = global_transform.translation;
-                let ui_position = position.truncate();
-                let extents = node.size / 2.0;
-                let mut min = ui_position - extents;
-                let mut max = ui_position + extents;
-                if let Some(clip) = clip {
-                    min = Vec2::max(min, clip.clip.min);
-                    max = Vec2::min(max, clip.clip.max);
-                }
-
+                let (min, max) = get_uinode_clipped_rect(global_transform, node, clip);
                 let x = (slider.value as f32 * (max.x - min.x)) / (slider.max - slider.min) as f32;
 
                 thumb_style.position = Rect {
@@ -198,20 +191,11 @@ fn slider_thumb_move(
                 .iter()
                 .find(|(track_root, ..)| track_root.0 == root.0)
             {
-                // TODO: move this code in some utils or something
-                let position = global_transform.translation;
-                let ui_position = position.truncate();
-                let extents = node.size / 2.0;
-                let mut min = ui_position - extents;
-                let mut max = ui_position + extents;
-                if let Some(clip) = clip {
-                    min = Vec2::max(min, clip.clip.min);
-                    max = Vec2::min(max, clip.clip.max);
-                }
-
                 if let Some(cursor_position) = cursor_position {
+                    let (min, max) = get_uinode_clipped_rect(global_transform, node, clip);
                     let x = f32::clamp(cursor_position.x, min.x, max.x) - min.x;
-                    let mut value = ((x * (slider.max - slider.min) as f32) / (max.x - min.x)) as i32;
+                    let mut value =
+                        ((x * (slider.max - slider.min) as f32) / (max.x - min.x)) as i32;
 
                     assert!(slider.step > 0 && slider.step <= slider.max - slider.min);
                     if slider.step > 1 {
