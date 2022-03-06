@@ -3,15 +3,17 @@ use bevy_ecs::prelude::*;
 use bevy_math::prelude::*;
 use bevy_render::view::Visibility;
 use bevy_text::*;
-use bevy_transform::{components::*, hierarchy::BuildChildren};
-use bevy_ui::{entity::*, *};
+use bevy_transform::components::*;
+use bevy_ui::*;
 use bevy_window::*;
+
+pub mod builder;
 
 pub struct TooltipPlugin;
 
 impl Plugin for TooltipPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(tooltip_init_system)
+        app //.add_system(tooltip_init_system)
             .add_system(position_update_system)
             .add_system(position_update_cursor_system)
             .add_system(update_text);
@@ -37,6 +39,12 @@ pub enum TooltipPosition {
     Manual,
 }
 
+impl Default for TooltipPosition {
+    fn default() -> Self {
+        Self::Manual
+    }
+}
+
 /// Describes the alignment of the tooltip relative to its position.
 /// This will be ignored when using a Rect position.
 ///
@@ -47,6 +55,12 @@ pub enum TooltipAlign {
     Right,
     Top,
     Bottom,
+}
+
+impl Default for TooltipAlign {
+    fn default() -> Self {
+        Self::Top
+    }
 }
 
 /// The tooltip's text.
@@ -67,30 +81,6 @@ pub struct TooltipUiNodes {
 /// Also contains a reference to the tooltip's root entity.
 #[derive(Component)]
 pub struct TooltipTextUiNode(pub Entity);
-
-fn tooltip_init_system(
-    mut commands: Commands,
-    tooltip_q: Query<(Entity, Option<&TooltipUiNodes>, Option<&TooltipText>), Added<Tooltip>>,
-) {
-    for (root, nodes, text) in tooltip_q.iter() {
-        if nodes.is_none() {
-            let text = commands
-                .spawn_bundle(TextBundle {
-                    style: Style {
-                        margin: Rect::all(Val::Px(5.0)),
-                        ..Default::default()
-                    },
-                    text: text.map(|t| t.0.clone()).unwrap_or_default(),
-                    ..Default::default()
-                })
-                .insert(TooltipTextUiNode(root))
-                .id();
-
-            commands.entity(root).add_child(text);
-            commands.entity(root).insert(TooltipUiNodes { root, text });
-        }
-    }
-}
 
 fn position_update_system(
     mut tooltip_q: Query<

@@ -1,5 +1,8 @@
 use bevy::prelude::*;
-use bevy_ui_widgets::{tooltip::*, AllWidgetsPlugins};
+use bevy_ui_widgets::{
+    tooltip::{builder::TooltipBuilder, *},
+    AllWidgetsPlugins,
+};
 
 /// A simple tooltip that updates every frame.
 fn main() {
@@ -19,13 +22,27 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     // ui camera
     commands.spawn_bundle(UiCameraBundle::default());
 
-    let tooltip = commands
-        .spawn_bundle(TooltipBundle {
-            align: TooltipAlign::Left,
-            position: TooltipPosition::FollowCursor,
-            color: Color::rgb(0.15, 0.15, 0.15).into(),
-            ..Default::default()
-        })
+    /*
+    let tooltip = build_tooltip(
+        &mut commands,
+        Text::with_section(
+            "0",
+            TextStyle {
+                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                font_size: 25.0,
+                color: Color::rgb(0.9, 0.9, 0.9),
+            },
+            Default::default(),
+        ),
+    );
+    */
+    let tooltip = TooltipBuilder::new(&mut commands)
+        .with_position(TooltipPosition::FollowCursor)
+        .with_color(Color::rgb(0.15, 0.15, 0.15))
+        .spawn();
+
+    commands
+        .entity(tooltip)
         .insert(TooltipText(Text::with_section(
             "0",
             TextStyle {
@@ -34,10 +51,11 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 color: Color::rgb(0.9, 0.9, 0.9),
             },
             Default::default(),
-        )))
-        .id();
+        )));
 
-    commands.insert_resource(MyTooltip(tooltip))
+    println!("tooltip: {:?}", tooltip);
+
+    commands.insert_resource(MyTooltip(tooltip));
 }
 
 fn update_count(
