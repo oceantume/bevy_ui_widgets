@@ -9,7 +9,7 @@ fn main() {
         .run();
 }
 
-fn setup(mut commands: Commands) {
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn_bundle(UiCameraBundle::default());
     commands.spawn_bundle(SliderBundle {
         slider: Slider {
@@ -25,5 +25,14 @@ fn setup(mut commands: Commands) {
             ..SliderBundle::default_style()
         },
         ..default()
+    }).insert(SliderTooltip {
+        text_style: TextStyle {
+            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            font_size: 25.0,
+            color: Color::rgb(0.9, 0.9, 0.9),
+        },
+        color: Color::rgb(0.15, 0.15, 0.15),
+        corner_radius: CornerRadius::all(2.0),
+        ..Default::default()
     });
 }

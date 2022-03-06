@@ -188,12 +188,7 @@ impl Default for TooltipBundle {
             position: TooltipPosition::FollowCursor,
             align: TooltipAlign::Right,
             node: Default::default(),
-            style: Style {
-                position_type: PositionType::Absolute,
-                border: Rect::all(Val::Px(2.0)),
-                align_items: AlignItems::Center,
-                ..Default::default()
-            },
+            style: Self::default_style(),
             color: Default::default(),
             image: Default::default(),
             focus_policy: Default::default(),
@@ -202,6 +197,17 @@ impl Default for TooltipBundle {
             visibility: Default::default(),
             corner_radius: Default::default(),
             border: Default::default(),
+        }
+    }
+}
+
+impl TooltipBundle {
+    pub fn default_style() -> Style {
+        Style {
+            position_type: PositionType::Absolute,
+            border: Rect::all(Val::Px(2.0)),
+            align_items: AlignItems::Center,
+            ..Default::default()
         }
     }
 }
