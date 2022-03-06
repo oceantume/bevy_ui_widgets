@@ -139,7 +139,7 @@ fn slider_init_system(mut commands: Commands, sliders_q: Query<Entity, Added<Sli
 }
 
 fn slider_thumb_update(
-    mut thumb_q: Query<(&WidgetRoot, &Node, &mut Style), With<SliderThumbNode>>,
+    mut thumb_q: Query<(&WidgetRoot, &Node, &mut Style), (With<SliderThumbNode>)>,
     track_q: Query<
         (
             &WidgetRoot,
@@ -223,7 +223,9 @@ fn slider_thumb_move(
                         value = ((value + slider.step / 2) / slider.step) * slider.step;
                     }
 
-                    slider.value = value;
+                    if slider.value != value {
+                        slider.value = value;
+                    }
                 }
             }
         }
