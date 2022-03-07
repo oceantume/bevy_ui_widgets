@@ -11,11 +11,11 @@ pub struct SliderWidgetBuilder<'a, 'w, 's> {
     commands: &'a mut Commands<'w, 's>,
     is_built: bool,
     root_entity: Entity,
-    root_bundle: SliderBundle,
+    root_bundle: Option<SliderBundle>,
     track_entity: Entity,
-    track_bundle: NodeBundle,
+    track_bundle: Option<NodeBundle>,
     thumb_entity: Entity,
-    thumb_bundle: NodeBundle,
+    thumb_bundle: Option<NodeBundle>,
 }
 
 impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
@@ -29,7 +29,7 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
             commands,
             is_built: false,
             root_entity,
-            root_bundle: SliderBundle {
+            root_bundle: Some(SliderBundle {
                 style: Style {
                     display: Display::Flex,
                     flex_direction: FlexDirection::Column,
@@ -38,9 +38,9 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
                     ..Default::default()
                 },
                 ..Default::default()
-            },
+            }),
             track_entity,
-            track_bundle: NodeBundle {
+            track_bundle: Some(NodeBundle {
                 style: Style {
                     size: Size {
                         height: Val::Px(10.),
@@ -54,9 +54,9 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
                     color: Color::rgb(0.15, 0.15, 0.15),
                 },
                 ..Default::default()
-            },
+            }),
             thumb_entity,
-            thumb_bundle: NodeBundle {
+            thumb_bundle: Some(NodeBundle {
                 style: Style {
                     position_type: PositionType::Absolute,
                     size: Size {
@@ -71,7 +71,7 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
                     color: Color::rgb(0.15, 0.15, 0.15),
                 },
                 ..Default::default()
-            },
+            }),
         }
     }
 
@@ -87,7 +87,7 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     /// Allows you to edit the root bundle before it is spawned.
     /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
     pub fn root_bundle(&mut self, extend: impl FnOnce(SliderBundle) -> SliderBundle) -> &mut Self {
-        self.root_bundle = extend(self.root_bundle.clone());
+        self.root_bundle = Some(extend(std::mem::take(&mut self.root_bundle).unwrap()));
         self
     }
 
@@ -103,7 +103,7 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     /// Allows editing the track bundle before it is spawned.
     /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
     pub fn track_bundle(&mut self, extend: impl FnOnce(NodeBundle) -> NodeBundle) -> &mut Self {
-        self.track_bundle = extend(self.track_bundle.clone());
+        self.track_bundle = Some(extend(std::mem::take(&mut self.track_bundle).unwrap()));
         self
     }
 
@@ -119,7 +119,7 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     /// Allows you to edit the thumb bundle before it is spawned.
     /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
     pub fn thumb_bundle(&mut self, extend: impl FnOnce(NodeBundle) -> NodeBundle) -> &mut Self {
-        self.thumb_bundle = extend(self.thumb_bundle.clone());
+        self.thumb_bundle = Some(extend(std::mem::take(&mut self.thumb_bundle).unwrap()));
         self
     }
 
@@ -127,16 +127,21 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     /// Calling this will consume the builder. If you don't call this, entities will still be
     /// created and destroyed
     pub fn spawn(&mut self) -> Entity {
-        assert!(!self.is_built, "SliderWidgetBuilder must never be spawned more than once.");
+        assert!(
+            !self.is_built,
+            "SliderWidgetBuilder must never be spawned more than once."
+        );
 
         let root = self.root_entity;
 
-        self.commands.entity(root).insert_bundle(self.root_bundle.clone());
+        self.commands
+            .entity(root)
+            .insert_bundle(std::mem::take(&mut self.root_bundle).unwrap());
 
         let track = self
             .commands
             .entity(self.track_entity)
-            .insert_bundle(self.track_bundle.clone())
+            .insert_bundle(std::mem::take(&mut self.track_bundle).unwrap())
             .insert(SliderTrackNode)
             .insert(WidgetRoot(root))
             .id();
@@ -144,7 +149,7 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
         let thumb = self
             .commands
             .entity(self.thumb_entity)
-            .insert_bundle(self.thumb_bundle.clone())
+            .insert_bundle(std::mem::take(&mut self.thumb_bundle).unwrap())
             .insert(Interaction::None)
             .insert(SliderThumbNode)
             .insert(WidgetRoot(root))
