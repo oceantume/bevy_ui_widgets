@@ -31,5 +31,14 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             max: 100,
             step: 10,
         })
+        .insert(SliderTooltip {
+            text_style: TextStyle {
+                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                font_size: 25.0,
+                color: Color::rgb(0.9, 0.9, 0.9),
+            },
+            color: Color::rgb(0.15, 0.15, 0.15),
+            corner_radius: CornerRadius::all(2.0),
+        })
         .insert(UiColor(Color::NONE));
 }

@@ -10,6 +10,7 @@ use super::*;
 pub struct SliderBuilder<'a, 'w, 's> {
     commands: &'a mut Commands<'w, 's>,
     style: Style,
+    tooltip: Option<SliderTooltip>,
 }
 
 impl<'a, 'w, 's> SliderBuilder<'a, 'w, 's> {
@@ -24,7 +25,13 @@ impl<'a, 'w, 's> SliderBuilder<'a, 'w, 's> {
                 align_items: AlignItems::Stretch,
                 ..Default::default()
             },
+            tooltip: None,
         }
+    }
+
+    pub fn with_tooltip(mut self, tooltip: SliderTooltip) -> Self {
+        self.tooltip = Some(tooltip);
+        self
     }
 
     pub fn extend_style(mut self, extend: fn(Style) -> Style) -> Self {
@@ -95,6 +102,10 @@ impl<'a, 'w, 's> SliderBuilder<'a, 'w, 's> {
             .id();
 
         self.commands.entity(root).push_children(&[track, thumb]);
+
+        if let Some(tooltip) = self.tooltip {
+            self.commands.entity(root).insert(tooltip);
+        }
 
         root
     }

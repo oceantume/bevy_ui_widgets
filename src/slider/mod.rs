@@ -2,15 +2,16 @@ use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use bevy_math::prelude::*;
 use bevy_render::{color::Color, view::Visibility};
-use bevy_text::{Text, TextStyle};
+use bevy_text::*;
 use bevy_transform::{components::*, hierarchy::DespawnRecursiveExt};
-use bevy_ui::*;
+use bevy_ui::{entity::*, *};
 use bevy_window::*;
 
 pub mod builder;
+pub mod slider_tooltip;
 
 use crate::{
-    tooltip::{TooltipBundle, TooltipPosition, TooltipText, TooltipTextUiNode, TooltipUiNodes},
+    tooltip::{builder::TooltipBuilder, TooltipPosition, TooltipTextUiNode, TooltipUiNodes},
     utils::get_uinode_clipped_rect,
 };
 
@@ -21,7 +22,7 @@ impl Plugin for SliderPlugin {
         app.add_system(slider_thumb_update)
             .add_system(slider_thumb_grab)
             .add_system(slider_thumb_move)
-            .add_system(slider_tooltip)
+            .add_system_to_stage(CoreStage::PreUpdate, slider_tooltip)
             .add_system(slider_tooltip_update)
             .add_system(slider_tooltip_text_update)
             .add_system(slider_tooltip_visibility);
@@ -51,6 +52,8 @@ impl Default for Slider {
 
 /// When present, describes the visual appearance for the slider tooltip.
 /// Remove this component to disable the slider's tooltip.
+///
+/// TODO: Improve this. It's not ideal to have to copy all those fields here.
 #[derive(Component, Default)]
 pub struct SliderTooltip {
     pub text_style: TextStyle,
@@ -69,6 +72,10 @@ pub struct SliderTrackNode;
 /// Marker component for Slider's tooltip
 #[derive(Component)]
 pub struct SliderTooltipNode;
+
+/// Marker component for Slider's tooltip text
+#[derive(Component)]
+pub struct SliderTooltipTextNode;
 
 /// Marker component added to slider thumb while it's getting moved.
 #[derive(Component)]
@@ -91,7 +98,7 @@ fn slider_thumb_update(
         ),
         With<SliderTrackNode>,
     >,
-    slider_q: Query<&Slider, Or<(Changed<Slider>, Changed<Children>)>>,
+    slider_q: Query<&Slider, Changed<Slider>>,
 ) {
     for (root, thumb_node, mut thumb_style) in thumb_q.iter_mut() {
         let thumb_width = thumb_node.size.y;
@@ -177,25 +184,33 @@ fn slider_thumb_move(
 // Adds and removes tooltip nodes.
 fn slider_tooltip(
     mut commands: Commands,
-    added_slider_q: Query<Entity, Added<SliderTooltip>>,
+    added_slider_q: Query<(Entity, &SliderTooltip), Added<SliderTooltip>>,
     tooltip_q: Query<(Entity, &WidgetRoot)>,
     removed: RemovedComponents<SliderTooltip>,
 ) {
-    for root in added_slider_q.iter() {
-        commands
-            .spawn_bundle(TooltipBundle {
-                position: TooltipPosition::FollowCursor,
-                style: Style {
-                    display: Display::None,
-                    ..TooltipBundle::default_style()
-                },
+    for (root, slider_tooltip) in added_slider_q.iter() {
+        let text = commands
+            .spawn_bundle(TextBundle {
+                text: Text::with_section(
+                    "0",
+                    slider_tooltip.text_style.clone(),
+                    Default::default(),
+                ),
                 ..Default::default()
             })
-            .insert(TooltipText(Text::with_section(
-                "",
-                Default::default(),
-                Default::default(),
-            )))
+            .insert(SliderTooltipTextNode)
+            .insert(WidgetRoot(root))
+            .id();
+
+        let tooltip = TooltipBuilder::new(&mut commands)
+            .with_position(TooltipPosition::FollowCursor)
+            .with_content(text)
+            .spawn();
+
+        commands
+            .entity(tooltip)
+            .insert(UiColor(slider_tooltip.color))
+            .insert(slider_tooltip.corner_radius.clone())
             .insert(SliderTooltipNode)
             .insert(WidgetRoot(root));
     }
@@ -248,6 +263,7 @@ fn slider_tooltip_visibility(
     }
 }
 
+/*
 fn slider_tooltip_text_update(
     mut tooltip_q: Query<(&WidgetRoot, &mut TooltipText), With<SliderTooltipNode>>,
     slider_q: Query<
@@ -262,6 +278,19 @@ fn slider_tooltip_text_update(
         if let Ok(slider) = slider_q.get(root.0) {
             println!("Changing text to {}", slider.value);
             text.0.sections[0].value = slider.value.to_string();
+        }
+    }
+}
+*/
+
+fn slider_tooltip_text_update(
+    mut tooltip_text_q: Query<(&WidgetRoot, &mut Text), With<SliderTooltipTextNode>>,
+    slider_q: Query<&Slider, (With<SliderTooltip>, Changed<Slider>)>,
+) {
+    for (root, mut text) in tooltip_text_q.iter_mut() {
+        if let Ok(slider) = slider_q.get(root.0) {
+            println!("Changing text to {}", slider.value);
+            text.sections[0].value = slider.value.to_string();
         }
     }
 }
