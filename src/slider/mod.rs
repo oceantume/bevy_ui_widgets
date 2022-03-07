@@ -8,10 +8,9 @@ use bevy_ui::{entity::*, *};
 use bevy_window::*;
 
 pub mod builder;
-pub mod slider_tooltip;
 
 use crate::{
-    tooltip::{builder::TooltipBuilder, TooltipPosition, TooltipTextUiNode, TooltipUiNodes},
+    tooltip::{builder::TooltipWidgetBuilder, TooltipPosition, TooltipTextUiNode, TooltipUiNodes, TooltipBundle},
     utils::get_uinode_clipped_rect,
 };
 
@@ -211,8 +210,11 @@ fn slider_tooltip(
             .insert(WidgetRoot(root))
             .id();
 
-        let tooltip = TooltipBuilder::new(&mut commands)
-            .with_position(TooltipPosition::FollowCursor)
+        let tooltip = TooltipWidgetBuilder::new(&mut commands)
+            .root_bundle(|bundle| TooltipBundle {
+                position: TooltipPosition::FollowCursor,
+                ..bundle
+            })
             .with_content(text)
             .spawn();
 

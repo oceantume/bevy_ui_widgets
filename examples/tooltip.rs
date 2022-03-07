@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_ui_widgets::{
-    tooltip::{builder::TooltipBuilder, *},
+    tooltip::{builder::TooltipWidgetBuilder, *},
     AllWidgetsPlugins,
 };
 
@@ -35,9 +35,12 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         ..Default::default()
     }).id();
 
-    let tooltip = TooltipBuilder::new(&mut commands)
-        .with_position(TooltipPosition::FollowCursor)
-        .with_color(Color::rgb(0.15, 0.15, 0.15))
+    let tooltip = TooltipWidgetBuilder::new(&mut commands)
+        .root_bundle(|bundle| TooltipBundle {
+            position: TooltipPosition::FollowCursor,
+            color: Color::rgb(0.15, 0.15, 0.15).into(),
+            ..bundle
+        })
         .with_content(text)
         .spawn();
 
