@@ -19,7 +19,8 @@ pub struct SliderPlugin;
 
 impl Plugin for SliderPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(slider_thumb_update)
+        app.add_system(slider_test)
+            .add_system(slider_thumb_update)
             .add_system(slider_thumb_grab)
             .add_system(slider_thumb_move)
             .add_system_to_stage(CoreStage::PreUpdate, slider_tooltip)
@@ -87,6 +88,12 @@ pub struct SliderThumbActive;
 #[derive(Component)]
 pub struct WidgetRoot(Entity);
 
+fn slider_test(query: Query<&Node, Added<SliderTooltip>>) {
+    for node in query.iter() {
+        println!("{:?}", node);
+    }
+}
+
 fn slider_thumb_update(
     mut thumb_q: Query<(&WidgetRoot, &Node, &mut Style), With<SliderThumbNode>>,
     track_q: Query<
@@ -98,7 +105,7 @@ fn slider_thumb_update(
         ),
         With<SliderTrackNode>,
     >,
-    slider_q: Query<&Slider, Changed<Slider>>,
+    slider_q: Query<&Slider, Or<(Changed<Slider>, Changed<Node>, Changed<GlobalTransform>)>>,
 ) {
     for (root, thumb_node, mut thumb_style) in thumb_q.iter_mut() {
         let thumb_width = thumb_node.size.y;
@@ -108,6 +115,8 @@ fn slider_thumb_update(
                 .iter()
                 .find(|(track_root, ..)| track_root.0 == root.0)
             {
+                //println!("Updated thumb");
+
                 let (min, max) = get_uinode_clipped_rect(global_transform, node, clip);
                 let x = (slider.value as f32 * (max.x - min.x)) / (slider.max - slider.min) as f32;
 
@@ -210,7 +219,7 @@ fn slider_tooltip(
         commands
             .entity(tooltip)
             .insert(UiColor(slider_tooltip.color))
-            .insert(slider_tooltip.corner_radius.clone())
+            .insert(slider_tooltip.corner_radius)
             .insert(SliderTooltipNode)
             .insert(WidgetRoot(root));
     }
@@ -262,26 +271,6 @@ fn slider_tooltip_visibility(
         }
     }
 }
-
-/*
-fn slider_tooltip_text_update(
-    mut tooltip_q: Query<(&WidgetRoot, &mut TooltipText), With<SliderTooltipNode>>,
-    slider_q: Query<
-        &Slider,
-        (
-            With<SliderTooltip>,
-            Or<(Changed<Slider>, Changed<Children>)>,
-        ),
-    >,
-) {
-    for (root, mut text) in tooltip_q.iter_mut() {
-        if let Ok(slider) = slider_q.get(root.0) {
-            println!("Changing text to {}", slider.value);
-            text.0.sections[0].value = slider.value.to_string();
-        }
-    }
-}
-*/
 
 fn slider_tooltip_text_update(
     mut tooltip_text_q: Query<(&WidgetRoot, &mut Text), With<SliderTooltipTextNode>>,
