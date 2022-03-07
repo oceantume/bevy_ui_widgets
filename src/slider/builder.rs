@@ -9,7 +9,7 @@ use super::*;
 /// Builds a slider widget
 pub struct SliderWidgetBuilder<'a, 'w, 's> {
     commands: &'a mut Commands<'w, 's>,
-    tooltip: Option<SliderTooltip>,
+    is_built: bool,
     root_entity: Entity,
     root_bundle: SliderBundle,
     track_entity: Entity,
@@ -27,7 +27,7 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
 
         Self {
             commands,
-            tooltip: None,
+            is_built: false,
             root_entity,
             root_bundle: SliderBundle {
                 style: Style {
@@ -77,63 +77,66 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
 
     /// Allows you to run commands on the root entity after it's spawned.
     pub fn root_commands(
-        self,
+        &mut self,
         run_commands: impl for<'b> FnOnce(&mut EntityCommands<'w, 's, 'b>),
-    ) -> Self {
+    ) -> &mut Self {
         run_commands(&mut self.commands.entity(self.root_entity));
         self
     }
 
     /// Allows you to edit the root bundle before it is spawned.
     /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
-    pub fn root_bundle(mut self, extend: impl FnOnce(SliderBundle) -> SliderBundle) -> Self {
-        self.root_bundle = extend(self.root_bundle);
+    pub fn root_bundle(&mut self, extend: impl FnOnce(SliderBundle) -> SliderBundle) -> &mut Self {
+        self.root_bundle = extend(self.root_bundle.clone());
         self
     }
 
     /// Allows you to run commands on the root entity after it's spawned.
     pub fn track_commands(
-        self,
+        &mut self,
         run_commands: impl for<'b> FnOnce(&mut EntityCommands<'w, 's, 'b>),
-    ) -> Self {
+    ) -> &Self {
         run_commands(&mut self.commands.entity(self.track_entity));
         self
     }
 
     /// Allows editing the track bundle before it is spawned.
     /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
-    pub fn track_bundle(mut self, extend: impl FnOnce(NodeBundle) -> NodeBundle) -> Self {
-        self.track_bundle = extend(self.track_bundle);
-        self
-    }
-
-    /// Allows you to edit the thumb bundle before it is spawned.
-    /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
-    pub fn thumb_bundle(mut self, extend: impl FnOnce(NodeBundle) -> NodeBundle) -> Self {
-        self.thumb_bundle = extend(self.thumb_bundle);
+    pub fn track_bundle(&mut self, extend: impl FnOnce(NodeBundle) -> NodeBundle) -> &mut Self {
+        self.track_bundle = extend(self.track_bundle.clone());
         self
     }
 
     /// Allows you to run commands on the root entity after it's spawned.
     pub fn thumb_commands(
-        self,
+        &mut self,
         run_commands: impl for<'b> FnOnce(&mut EntityCommands<'w, 's, 'b>),
-    ) -> Self {
+    ) -> &Self {
         run_commands(&mut self.commands.entity(self.thumb_entity));
         self
     }
 
+    /// Allows you to edit the thumb bundle before it is spawned.
+    /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
+    pub fn thumb_bundle(&mut self, extend: impl FnOnce(NodeBundle) -> NodeBundle) -> &mut Self {
+        self.thumb_bundle = extend(self.thumb_bundle.clone());
+        self
+    }
+
     /// Consumes the builder, spawns the entity and returns the EntityCommands for the root node.
-    /// You can't use the builder after calling this.
-    pub fn spawn(self) -> Entity {
+    /// Calling this will consume the builder. If you don't call this, entities will still be
+    /// created and destroyed
+    pub fn spawn(&mut self) -> Entity {
+        assert!(!self.is_built, "SliderWidgetBuilder must never be spawned more than once.");
+
         let root = self.root_entity;
 
-        self.commands.entity(root).insert_bundle(self.root_bundle);
+        self.commands.entity(root).insert_bundle(self.root_bundle.clone());
 
         let track = self
             .commands
             .entity(self.track_entity)
-            .insert_bundle(self.track_bundle)
+            .insert_bundle(self.track_bundle.clone())
             .insert(SliderTrackNode)
             .insert(WidgetRoot(root))
             .id();
@@ -141,7 +144,7 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
         let thumb = self
             .commands
             .entity(self.thumb_entity)
-            .insert_bundle(self.thumb_bundle)
+            .insert_bundle(self.thumb_bundle.clone())
             .insert(Interaction::None)
             .insert(SliderThumbNode)
             .insert(WidgetRoot(root))
@@ -149,11 +152,13 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
 
         self.commands.entity(root).push_children(&[track, thumb]);
 
-        // TODO: replace this with an extensible TooltipBuilder.
-        if let Some(tooltip) = self.tooltip {
-            self.commands.entity(root).insert(tooltip);
-        }
-
+        self.is_built = true;
         root
+    }
+}
+
+impl<'a, 'w, 's> Drop for SliderWidgetBuilder<'a, 'w, 's> {
+    fn drop(&mut self) {
+        assert!(self.is_built, "SliderWidgetBuilder must always be spawned.");
     }
 }

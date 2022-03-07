@@ -55,7 +55,7 @@ impl Default for Slider {
 /// Remove this component to disable the slider's tooltip.
 ///
 /// TODO: Improve this. It's not ideal to have to copy all those fields here.
-#[derive(Component, Default)]
+#[derive(Component, Default, Clone)]
 pub struct SliderTooltip {
     pub text_style: TextStyle,
     pub color: Color,
