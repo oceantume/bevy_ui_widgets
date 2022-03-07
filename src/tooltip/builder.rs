@@ -52,6 +52,7 @@ impl<'a, 'w, 's> TooltipBuilder<'a, 'w, 's> {
     }
 
     /// Consumes the builder, spawns the entity and returns the EntityCommands for the root node.
+    /// You can't use the builder after calling this.
     pub fn spawn(self) -> Entity {
         let root = self
             .commands

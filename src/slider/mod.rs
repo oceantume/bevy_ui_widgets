@@ -3,12 +3,11 @@ use bevy_ecs::prelude::*;
 use bevy_math::prelude::*;
 use bevy_render::{color::Color, view::Visibility};
 use bevy_text::{Text, TextStyle};
-use bevy_transform::{
-    components::*,
-    hierarchy::{BuildChildren, DespawnRecursiveExt},
-};
-use bevy_ui::{entity::*, *};
+use bevy_transform::{components::*, hierarchy::DespawnRecursiveExt};
+use bevy_ui::*;
 use bevy_window::*;
+
+pub mod builder;
 
 use crate::{
     tooltip::{TooltipBundle, TooltipPosition, TooltipText, TooltipTextUiNode, TooltipUiNodes},
@@ -19,8 +18,7 @@ pub struct SliderPlugin;
 
 impl Plugin for SliderPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(slider_init_system)
-            .add_system(slider_thumb_update)
+        app.add_system(slider_thumb_update)
             .add_system(slider_thumb_grab)
             .add_system(slider_thumb_move)
             .add_system(slider_tooltip)
@@ -82,64 +80,8 @@ pub struct SliderThumbActive;
 #[derive(Component)]
 pub struct WidgetRoot(Entity);
 
-/// Initializes the slider
-fn slider_init_system(mut commands: Commands, sliders_q: Query<Entity, Added<Slider>>) {
-    for root in sliders_q.iter() {
-        let track = commands
-            .spawn_bundle(NodeBundle {
-                style: Style {
-                    size: Size {
-                        height: Val::Px(10.),
-                        width: Val::Auto,
-                    },
-                    ..Default::default()
-                },
-                color: Color::rgb(0.25, 0.25, 0.25).into(),
-                border: Border {
-                    width: 2.,
-                    color: Color::rgb(0.15, 0.15, 0.15),
-                },
-                corner_radius: CornerRadius::all(5.),
-                ..Default::default()
-            })
-            .insert(SliderTrackNode)
-            .insert(WidgetRoot(root))
-            .id();
-
-        let thumb = commands
-            .spawn_bundle(NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    position: Rect {
-                        // TODO: Implement this manually using real width.
-                        left: Val::Px(0. - 8.),
-                        ..Default::default()
-                    },
-                    size: Size {
-                        height: Val::Px(16.),
-                        width: Val::Px(16.),
-                    },
-                    ..Default::default()
-                },
-                color: Color::rgb(0.25, 0.25, 0.25).into(),
-                border: Border {
-                    width: 2.,
-                    color: Color::rgb(0.15, 0.15, 0.15),
-                },
-                corner_radius: CornerRadius::all(4.),
-                ..Default::default()
-            })
-            .insert(Interaction::None)
-            .insert(SliderThumbNode)
-            .insert(WidgetRoot(root))
-            .id();
-
-        commands.entity(root).push_children(&[track, thumb]);
-    }
-}
-
 fn slider_thumb_update(
-    mut thumb_q: Query<(&WidgetRoot, &Node, &mut Style), (With<SliderThumbNode>)>,
+    mut thumb_q: Query<(&WidgetRoot, &Node, &mut Style), With<SliderThumbNode>>,
     track_q: Query<
         (
             &WidgetRoot,
@@ -266,15 +208,20 @@ fn slider_tooltip(
 }
 
 /// Updates the internal tooltip text style
-/// 
+///
 /// TODO: Fix the change detection query. Otherwise this copies the style object every frame.
 fn slider_tooltip_update(
-    slider_q: Query<&SliderTooltip/*, Or<(Changed<SliderTooltip>, Changed<Children>)>*/>,
-    mut tooltip_q: Query<(&WidgetRoot, &TooltipUiNodes, &mut UiColor, &mut CornerRadius)>,
+    slider_q: Query<&SliderTooltip /*, Or<(Changed<SliderTooltip>, Changed<Children>)>*/>,
+    mut tooltip_q: Query<(
+        &WidgetRoot,
+        &TooltipUiNodes,
+        &mut UiColor,
+        &mut CornerRadius,
+    )>,
     mut tooltip_text_q: Query<&mut Text, With<TooltipTextUiNode>>,
 ) {
     for (root, nodes, mut color, mut corner_radius) in tooltip_q.iter_mut() {
-            if let Ok(mut text) = tooltip_text_q.get_mut(nodes.text) {
+        if let Ok(mut text) = tooltip_text_q.get_mut(nodes.text) {
             if let Ok(slider_tooltip) = slider_q.get(root.0) {
                 text.sections[0].style = slider_tooltip.text_style.clone();
                 color.0 = slider_tooltip.color;
@@ -291,7 +238,7 @@ fn slider_tooltip_visibility(
     >,
     mut tooltip_q: Query<(&WidgetRoot, &mut Style), With<SliderTooltipNode>>,
 ) {
-    for (root, interaction, active) in thumb_q.iter() {
+    for (root, interaction, _) in thumb_q.iter() {
         if let Some((_, mut style)) = tooltip_q.iter_mut().find(|(r, ..)| r.0 == root.0) {
             style.display = match interaction {
                 Interaction::Clicked | Interaction::Hovered => Display::Flex,
