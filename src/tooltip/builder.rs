@@ -3,7 +3,6 @@ use bevy_math::prelude::*;
 use bevy_transform::hierarchy::BuildChildren;
 use bevy_ui::*;
 use bevy_utils::*;
-use smallvec::*;
 
 use crate::utils::*;
 
@@ -36,9 +35,9 @@ impl<'a, 'w, 's> TooltipWidgetBuilder<'a, 'w, 's> {
     /// Allows to run commands on the root entity after it's spawned.
     pub fn root_commands(
         &mut self,
-        run_commands: &'a dyn for<'b> Fn(&mut EntityCommands<'w, 's, 'b>),
+        run_commands: impl for<'b> Fn(&mut EntityCommands<'w, 's, 'b>) + 'a,
     ) -> &mut Self {
-        self.root_commands_runners.push(run_commands);
+        self.root_commands_runners.push(Box::new(run_commands));
         self
     }
 
