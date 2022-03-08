@@ -120,16 +120,19 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     pub fn spawn(&mut self, commands: &'a mut Commands<'w, 's>) -> Entity {
         let root = commands
             .spawn_bundle(std::mem::take(&mut self.root.bundle).unwrap())
+            .run_entity_commands(&self.root.commands_runners)
             .id();
 
         let track = commands
             .spawn_bundle(std::mem::take(&mut self.track.bundle).unwrap())
+            .run_entity_commands(&self.track.commands_runners)
             .insert(SliderTrackNode)
             .insert(WidgetRoot(root))
             .id();
 
         let thumb = commands
             .spawn_bundle(std::mem::take(&mut self.thumb.bundle).unwrap())
+            .run_entity_commands(&self.thumb.commands_runners)
             .insert(Interaction::None)
             .insert(SliderThumbNode)
             .insert(WidgetRoot(root))

@@ -42,3 +42,20 @@ impl<'a, 'w, 's, TBundle> WidgetBuilderEntity<'a, 'w, 's, TBundle> {
         }
     }
 }
+
+pub trait RunEntityCommands<'w, 's, 'a> {
+    fn run_entity_commands(
+        &mut self,
+        runners: &[Box<dyn for<'b> Fn(&mut EntityCommands<'w, 's, 'b>) + 'a>],
+    ) -> &mut Self;
+}
+
+impl<'w, 's, 'a> RunEntityCommands<'w, 's, 'a> for EntityCommands<'w, 's, 'a> {
+    fn run_entity_commands(
+        &mut self,
+        runners: &[Box<dyn for<'b> Fn(&mut EntityCommands<'w, 's, 'b>) + 'a>],
+    ) -> &mut Self {
+        runners.iter().for_each(|run| run(self));
+        self
+    }
+}

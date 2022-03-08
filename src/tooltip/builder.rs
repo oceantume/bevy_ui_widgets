@@ -61,12 +61,8 @@ impl<'a, 'w, 's> TooltipWidgetBuilder<'a, 'w, 's> {
     pub fn spawn(&mut self, commands: &'a mut Commands<'w, 's>) -> Entity {
         let root_entity = commands
             .spawn_bundle(std::mem::take(&mut self.root.bundle).unwrap())
+            .run_entity_commands(&self.root.commands_runners)
             .id();
-
-        self.root
-            .commands_runners
-            .iter()
-            .for_each(|run| run(&mut commands.entity(root_entity)));
 
         if let Some(content) = self.content_entity {
             commands.entity(root_entity).add_child(content);
