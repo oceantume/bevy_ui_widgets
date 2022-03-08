@@ -14,7 +14,6 @@ pub struct SliderWidgetBuilder<'a, 'w, 's> {
     root: WidgetBuilderEntity<'a, 'w, 's, Option<SliderBundle>>,
     track: WidgetBuilderEntity<'a, 'w, 's, Option<NodeBundle>>,
     thumb: WidgetBuilderEntity<'a, 'w, 's, Option<NodeBundle>>,
-    tooltip_entity: Option<Entity>,
 }
 
 impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
@@ -62,7 +61,6 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
                 },
                 ..default()
             })),
-            tooltip_entity: None,
         }
     }
 
@@ -139,15 +137,6 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
             .id();
 
         commands.entity(root).push_children(&[track, thumb]);
-
-        // if tooltip is created by user, it means we can't reliably edit content text.
-        // content could be anything. we need to create it ourselves but offer abstraction?
-        if let Some(tooltip_entity) = self.tooltip_entity {
-            commands
-                .entity(tooltip_entity)
-                .insert(SliderTooltipNode)
-                .insert(WidgetRoot(root));
-        }
 
         root
     }

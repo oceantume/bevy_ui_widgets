@@ -1,8 +1,5 @@
 use bevy::prelude::*;
-use bevy_ui_widgets::{
-    slider::{builder::SliderWidgetBuilder, SliderBundle, *},
-    AllWidgetsPlugins,
-};
+use bevy_ui_widgets::{slider::*, AllWidgetsPlugins};
 
 fn main() {
     App::new()

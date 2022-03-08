@@ -7,7 +7,8 @@ use bevy_transform::components::*;
 use bevy_ui::*;
 use bevy_window::*;
 
-pub mod builder;
+mod builder;
+pub use builder::*;
 
 pub struct TooltipPlugin;
 
