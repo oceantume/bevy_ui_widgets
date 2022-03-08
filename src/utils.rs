@@ -2,6 +2,7 @@ use bevy_ecs::system::EntityCommands;
 use bevy_math::Vec2;
 use bevy_transform::components::GlobalTransform;
 use bevy_ui::{CalculatedClip, Node};
+use bevy_utils::default;
 use smallvec::SmallVec;
 
 pub fn get_uinode_clipped_rect(
@@ -26,3 +27,18 @@ pub fn get_uinode_clipped_rect(
 /// This uses a SmallVec to optimize space since two entries should be enough for 90% of use-cases.
 pub type EntityCommandsRunnersVec<'a, 'w, 's> =
     SmallVec<[Box<dyn for<'b> Fn(&mut EntityCommands<'w, 's, 'b>) + 'a>; 2]>;
+
+
+pub struct WidgetBuilderEntity<'a, 'w, 's, TBundle> {
+    pub commands_runners: EntityCommandsRunnersVec<'a, 'w, 's>,
+    pub bundle: TBundle,
+}
+
+impl<'a, 'w, 's, TBundle> WidgetBuilderEntity<'a, 'w, 's, TBundle> {
+    pub fn new(bundle: TBundle) -> Self {
+        Self {
+            bundle,
+            commands_runners: default(),
+        }
+    }
+}

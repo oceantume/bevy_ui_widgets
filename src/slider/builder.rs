@@ -11,12 +11,9 @@ use super::*;
 
 /// Builds a slider widget
 pub struct SliderWidgetBuilder<'a, 'w, 's> {
-    root_commands_runners: EntityCommandsRunnersVec<'a, 'w, 's>,
-    root_bundle: Option<SliderBundle>,
-    track_commands_runners: EntityCommandsRunnersVec<'a, 'w, 's>,
-    track_bundle: Option<NodeBundle>,
-    thumb_commands_runners: EntityCommandsRunnersVec<'a, 'w, 's>,
-    thumb_bundle: Option<NodeBundle>,
+    root: WidgetBuilderEntity<'a, 'w, 's, Option<SliderBundle>>,
+    track: WidgetBuilderEntity<'a, 'w, 's, Option<NodeBundle>>,
+    thumb: WidgetBuilderEntity<'a, 'w, 's, Option<NodeBundle>>,
     tooltip_entity: Option<Entity>,
 }
 
@@ -24,8 +21,7 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     /// Creates a new slider builder
     pub fn new() -> Self {
         Self {
-            root_commands_runners: default(),
-            root_bundle: Some(SliderBundle {
+            root: WidgetBuilderEntity::new(Some(SliderBundle {
                 style: Style {
                     display: Display::Flex,
                     flex_direction: FlexDirection::Column,
@@ -34,9 +30,8 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
                     ..default()
                 },
                 ..default()
-            }),
-            track_commands_runners: default(),
-            track_bundle: Some(NodeBundle {
+            })),
+            track: WidgetBuilderEntity::new(Some(NodeBundle {
                 style: Style {
                     size: Size {
                         height: Val::Px(10.),
@@ -50,9 +45,8 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
                     color: Color::rgb(0.15, 0.15, 0.15),
                 },
                 ..default()
-            }),
-            thumb_commands_runners: default(),
-            thumb_bundle: Some(NodeBundle {
+            })),
+            thumb: WidgetBuilderEntity::new(Some(NodeBundle {
                 style: Style {
                     position_type: PositionType::Absolute,
                     size: Size {
@@ -67,7 +61,7 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
                     color: Color::rgb(0.15, 0.15, 0.15),
                 },
                 ..default()
-            }),
+            })),
             tooltip_entity: None,
         }
     }
@@ -77,14 +71,14 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
         &mut self,
         run_commands: impl for<'b> Fn(&mut EntityCommands<'w, 's, 'b>) + 'a,
     ) -> &mut Self {
-        self.root_commands_runners.push(Box::new(run_commands));
+        self.root.commands_runners.push(Box::new(run_commands));
         self
     }
 
     /// Allows you to edit the root bundle before it is spawned.
     /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
     pub fn root_bundle(&mut self, extend: impl FnOnce(SliderBundle) -> SliderBundle) -> &mut Self {
-        self.root_bundle = Some(extend(std::mem::take(&mut self.root_bundle).unwrap()));
+        self.root.bundle = Some(extend(std::mem::take(&mut self.root.bundle).unwrap()));
         self
     }
 
@@ -93,14 +87,14 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
         &mut self,
         run_commands: impl for<'b> Fn(&mut EntityCommands<'w, 's, 'b>) + 'a,
     ) -> &Self {
-        self.track_commands_runners.push(Box::new(run_commands));
+        self.track.commands_runners.push(Box::new(run_commands));
         self
     }
 
     /// Allows editing the track bundle before it is spawned.
     /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
     pub fn track_bundle(&mut self, extend: impl FnOnce(NodeBundle) -> NodeBundle) -> &mut Self {
-        self.track_bundle = Some(extend(std::mem::take(&mut self.track_bundle).unwrap()));
+        self.track.bundle = Some(extend(std::mem::take(&mut self.track.bundle).unwrap()));
         self
     }
 
@@ -109,14 +103,14 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
         &mut self,
         run_commands: impl for<'b> Fn(&mut EntityCommands<'w, 's, 'b>) + 'a,
     ) -> &Self {
-        self.thumb_commands_runners.push(Box::new(run_commands));
+        self.thumb.commands_runners.push(Box::new(run_commands));
         self
     }
 
     /// Allows you to edit the thumb bundle before it is spawned.
     /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
     pub fn thumb_bundle(&mut self, extend: impl FnOnce(NodeBundle) -> NodeBundle) -> &mut Self {
-        self.thumb_bundle = Some(extend(std::mem::take(&mut self.thumb_bundle).unwrap()));
+        self.thumb.bundle = Some(extend(std::mem::take(&mut self.thumb.bundle).unwrap()));
         self
     }
 
@@ -125,17 +119,17 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     /// created and destroyed
     pub fn spawn(&mut self, commands: &'a mut Commands<'w, 's>) -> Entity {
         let root = commands
-            .spawn_bundle(std::mem::take(&mut self.root_bundle).unwrap())
+            .spawn_bundle(std::mem::take(&mut self.root.bundle).unwrap())
             .id();
 
         let track = commands
-            .spawn_bundle(std::mem::take(&mut self.track_bundle).unwrap())
+            .spawn_bundle(std::mem::take(&mut self.track.bundle).unwrap())
             .insert(SliderTrackNode)
             .insert(WidgetRoot(root))
             .id();
 
         let thumb = commands
-            .spawn_bundle(std::mem::take(&mut self.thumb_bundle).unwrap())
+            .spawn_bundle(std::mem::take(&mut self.thumb.bundle).unwrap())
             .insert(Interaction::None)
             .insert(SliderThumbNode)
             .insert(WidgetRoot(root))
