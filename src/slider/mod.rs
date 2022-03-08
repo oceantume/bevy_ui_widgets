@@ -210,13 +210,13 @@ fn slider_tooltip(
             .insert(WidgetRoot(root))
             .id();
 
-        let tooltip = TooltipWidgetBuilder::new(&mut commands)
+        let tooltip = TooltipWidgetBuilder::new()
             .root_bundle(|bundle| TooltipBundle {
                 position: TooltipPosition::FollowCursor,
                 ..bundle
             })
             .with_content(text)
-            .spawn();
+            .spawn(&mut commands);
 
         commands
             .entity(tooltip)

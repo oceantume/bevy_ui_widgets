@@ -15,7 +15,7 @@ fn main() {
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn_bundle(UiCameraBundle::default());
 
-    let _slider_entity = SliderWidgetBuilder::new(&mut commands)
+    let _slider_entity = SliderWidgetBuilder::new()
         .root_bundle(|bundle| SliderBundle {
             slider: Slider {
                 value: 50,
@@ -50,5 +50,5 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             corner_radius: CornerRadius::all(4.),
             ..bundle
         })
-        .spawn();
+        .spawn(&mut commands);
 }

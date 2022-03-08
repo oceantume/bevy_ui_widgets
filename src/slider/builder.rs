@@ -3,59 +3,55 @@ use bevy_math::prelude::*;
 use bevy_render::prelude::*;
 use bevy_transform::hierarchy::BuildChildren;
 use bevy_ui::{entity::*, *};
+use bevy_utils::*;
+
+use crate::utils::*;
 
 use super::*;
 
 /// Builds a slider widget
 pub struct SliderWidgetBuilder<'a, 'w, 's> {
-    commands: &'a mut Commands<'w, 's>,
-    is_built: bool,
-    root_entity: Entity,
+    root_commands_runners: EntityCommandsRunnersVec<'a, 'w, 's>,
     root_bundle: Option<SliderBundle>,
-    track_entity: Entity,
+    track_commands_runners: EntityCommandsRunnersVec<'a, 'w, 's>,
     track_bundle: Option<NodeBundle>,
-    thumb_entity: Entity,
+    thumb_commands_runners: EntityCommandsRunnersVec<'a, 'w, 's>,
     thumb_bundle: Option<NodeBundle>,
+    tooltip_entity: Option<Entity>,
 }
 
 impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     /// Creates a new slider builder
-    pub fn new(commands: &'a mut Commands<'w, 's>) -> Self {
-        let root_entity = commands.spawn().id();
-        let track_entity = commands.spawn().id();
-        let thumb_entity = commands.spawn().id();
-
+    pub fn new() -> Self {
         Self {
-            commands,
-            is_built: false,
-            root_entity,
+            root_commands_runners: default(),
             root_bundle: Some(SliderBundle {
                 style: Style {
                     display: Display::Flex,
                     flex_direction: FlexDirection::Column,
                     justify_content: JustifyContent::SpaceAround,
                     align_items: AlignItems::Stretch,
-                    ..Default::default()
+                    ..default()
                 },
-                ..Default::default()
+                ..default()
             }),
-            track_entity,
+            track_commands_runners: default(),
             track_bundle: Some(NodeBundle {
                 style: Style {
                     size: Size {
                         height: Val::Px(10.),
                         width: Val::Auto,
                     },
-                    ..Default::default()
+                    ..default()
                 },
                 color: Color::rgb(0.25, 0.25, 0.25).into(),
                 border: Border {
                     width: 2.,
                     color: Color::rgb(0.15, 0.15, 0.15),
                 },
-                ..Default::default()
+                ..default()
             }),
-            thumb_entity,
+            thumb_commands_runners: default(),
             thumb_bundle: Some(NodeBundle {
                 style: Style {
                     position_type: PositionType::Absolute,
@@ -63,24 +59,25 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
                         height: Val::Px(16.),
                         width: Val::Px(16.),
                     },
-                    ..Default::default()
+                    ..default()
                 },
                 color: Color::rgb(0.25, 0.25, 0.25).into(),
                 border: Border {
                     width: 2.,
                     color: Color::rgb(0.15, 0.15, 0.15),
                 },
-                ..Default::default()
+                ..default()
             }),
+            tooltip_entity: None,
         }
     }
 
-    /// Allows you to run commands on the root entity after it's spawned.
+    /// Allows to run commands on the root entity after it's spawned.
     pub fn root_commands(
         &mut self,
-        run_commands: impl for<'b> FnOnce(&mut EntityCommands<'w, 's, 'b>),
+        run_commands: impl for<'b> Fn(&mut EntityCommands<'w, 's, 'b>) + 'a,
     ) -> &mut Self {
-        run_commands(&mut self.commands.entity(self.root_entity));
+        self.root_commands_runners.push(Box::new(run_commands));
         self
     }
 
@@ -94,9 +91,9 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     /// Allows you to run commands on the root entity after it's spawned.
     pub fn track_commands(
         &mut self,
-        run_commands: impl for<'b> FnOnce(&mut EntityCommands<'w, 's, 'b>),
+        run_commands: impl for<'b> Fn(&mut EntityCommands<'w, 's, 'b>) + 'a,
     ) -> &Self {
-        run_commands(&mut self.commands.entity(self.track_entity));
+        self.track_commands_runners.push(Box::new(run_commands));
         self
     }
 
@@ -110,9 +107,9 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     /// Allows you to run commands on the root entity after it's spawned.
     pub fn thumb_commands(
         &mut self,
-        run_commands: impl for<'b> FnOnce(&mut EntityCommands<'w, 's, 'b>),
+        run_commands: impl for<'b> Fn(&mut EntityCommands<'w, 's, 'b>) + 'a,
     ) -> &Self {
-        run_commands(&mut self.commands.entity(self.thumb_entity));
+        self.thumb_commands_runners.push(Box::new(run_commands));
         self
     }
 
@@ -126,44 +123,35 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     /// Consumes the builder, spawns the entity and returns the EntityCommands for the root node.
     /// Calling this will consume the builder. If you don't call this, entities will still be
     /// created and destroyed
-    pub fn spawn(&mut self) -> Entity {
-        assert!(
-            !self.is_built,
-            "SliderWidgetBuilder must never be spawned more than once."
-        );
+    pub fn spawn(&mut self, commands: &'a mut Commands<'w, 's>) -> Entity {
+        let root = commands
+            .spawn_bundle(std::mem::take(&mut self.root_bundle).unwrap())
+            .id();
 
-        let root = self.root_entity;
-
-        self.commands
-            .entity(root)
-            .insert_bundle(std::mem::take(&mut self.root_bundle).unwrap());
-
-        let track = self
-            .commands
-            .entity(self.track_entity)
-            .insert_bundle(std::mem::take(&mut self.track_bundle).unwrap())
+        let track = commands
+            .spawn_bundle(std::mem::take(&mut self.track_bundle).unwrap())
             .insert(SliderTrackNode)
             .insert(WidgetRoot(root))
             .id();
 
-        let thumb = self
-            .commands
-            .entity(self.thumb_entity)
-            .insert_bundle(std::mem::take(&mut self.thumb_bundle).unwrap())
+        let thumb = commands
+            .spawn_bundle(std::mem::take(&mut self.thumb_bundle).unwrap())
             .insert(Interaction::None)
             .insert(SliderThumbNode)
             .insert(WidgetRoot(root))
             .id();
 
-        self.commands.entity(root).push_children(&[track, thumb]);
+        commands.entity(root).push_children(&[track, thumb]);
 
-        self.is_built = true;
+        // if tooltip is created by user, it means we can't reliably edit content text.
+        // content could be anything. we need to create it ourselves but offer abstraction?
+        if let Some(tooltip_entity) = self.tooltip_entity {
+            commands
+                .entity(tooltip_entity)
+                .insert(SliderTooltipNode)
+                .insert(WidgetRoot(root));
+        }
+
         root
-    }
-}
-
-impl<'a, 'w, 's> Drop for SliderWidgetBuilder<'a, 'w, 's> {
-    fn drop(&mut self) {
-        assert!(self.is_built, "SliderWidgetBuilder must always be spawned.");
     }
 }
