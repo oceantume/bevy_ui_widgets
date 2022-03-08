@@ -22,30 +22,31 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     // ui camera
     commands.spawn_bundle(UiCameraBundle::default());
 
-    let text = commands.spawn_bundle(TextBundle {
-        text: Text::with_section(
-            "0",
-            TextStyle {
-                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                font_size: 25.0,
-                color: Color::rgb(0.9, 0.9, 0.9),
-            },
-            Default::default(),
-        ),
-        ..Default::default()
-    }).id();
+    let text = commands
+        .spawn_bundle(TextBundle {
+            text: Text::with_section(
+                "0",
+                TextStyle {
+                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                    font_size: 25.0,
+                    color: Color::rgb(0.9, 0.9, 0.9),
+                },
+                Default::default(),
+            ),
+            ..Default::default()
+        })
+        .id();
 
-    let tooltip = TooltipWidgetBuilder::new(&mut commands)
+    let tooltip = TooltipWidgetBuilder::new()
         .root_bundle(|bundle| TooltipBundle {
             position: TooltipPosition::FollowCursor,
             color: Color::rgb(0.15, 0.15, 0.15).into(),
             ..bundle
         })
         .with_content(text)
-        .spawn();
+        .spawn(&mut commands);
 
-    commands
-        .entity(tooltip);
+    commands.entity(tooltip);
 
     commands.insert_resource(MyTooltipTextNode(text));
 }

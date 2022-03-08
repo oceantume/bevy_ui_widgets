@@ -662,7 +662,9 @@ dependencies = [
  "bevy_text",
  "bevy_transform",
  "bevy_ui",
+ "bevy_utils",
  "bevy_window",
+ "smallvec",
 ]
 
 [[package]]

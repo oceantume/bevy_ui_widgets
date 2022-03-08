@@ -2,49 +2,47 @@ use bevy_ecs::{prelude::*, system::EntityCommands};
 use bevy_math::prelude::*;
 use bevy_transform::hierarchy::BuildChildren;
 use bevy_ui::*;
+use bevy_utils::*;
+use smallvec::*;
+
+use crate::utils::*;
 
 use super::*;
 
 pub struct TooltipWidgetBuilder<'a, 'w, 's> {
-    commands: &'a mut Commands<'w, 's>,
-    is_built: bool,
-    root_entity: Entity,
     root_bundle: Option<TooltipBundle>,
     content_entity: Option<Entity>,
+    root_commands_runners: EntityCommandsRunnersVec<'a, 'w, 's>,
 }
 
 impl<'a, 'w, 's> TooltipWidgetBuilder<'a, 'w, 's> {
     /// Creates a new tooltip builder
-    pub fn new(commands: &'a mut Commands<'w, 's>) -> TooltipWidgetBuilder<'a, 'w, 's> {
-        let root_entity = commands.spawn().id();
-
+    pub fn new() -> TooltipWidgetBuilder<'a, 'w, 's> {
         Self {
-            commands,
-            is_built: false,
-            root_entity,
             root_bundle: Some(TooltipBundle {
                 style: Style {
                     position_type: PositionType::Absolute,
                     border: Rect::all(Val::Px(2.0)),
                     align_items: AlignItems::Center,
-                    ..Default::default()
+                    ..default()
                 },
-                ..Default::default()
+                ..default()
             }),
             content_entity: None,
+            root_commands_runners: default(),
         }
     }
 
-    /// Allows you to run commands on the root entity after it's spawned.
+    /// Allows to run commands on the root entity after it's spawned.
     pub fn root_commands(
         &mut self,
-        run_commands: impl for<'b> FnOnce(&mut EntityCommands<'w, 's, 'b>),
+        run_commands: &'a dyn for<'b> Fn(&mut EntityCommands<'w, 's, 'b>),
     ) -> &mut Self {
-        run_commands(&mut self.commands.entity(self.root_entity));
+        self.root_commands_runners.push(run_commands);
         self
     }
 
-    /// Allows you to edit the root bundle before it is spawned.
+    /// Allows to edit the root bundle before it is spawned.
     /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
     pub fn root_bundle(
         &mut self,
@@ -61,29 +59,21 @@ impl<'a, 'w, 's> TooltipWidgetBuilder<'a, 'w, 's> {
         self
     }
 
-    /// Consumes the builder, spawns the entity and returns the EntityCommands for the root node.
+    /// Spawns the entity and returns the EntityCommands for the root node.
     /// Using the builder again after calling this will panic.
-    pub fn spawn(&mut self) -> Entity {
-        assert!(
-            !self.is_built,
-            "TooltipWidgetBuilder must never be spawned more than once."
-        );
+    pub fn spawn(&mut self, commands: &'a mut Commands<'w, 's>) -> Entity {
+        let root_entity = commands
+            .spawn_bundle(std::mem::take(&mut self.root_bundle).unwrap())
+            .id();
 
-        self.commands
-            .entity(self.root_entity)
-            .insert_bundle(std::mem::take(&mut self.root_bundle).unwrap());
+        self.root_commands_runners
+            .iter()
+            .for_each(|run| run(&mut commands.entity(root_entity)));
 
         if let Some(content) = self.content_entity {
-            self.commands.entity(self.root_entity).add_child(content);
+            commands.entity(root_entity).add_child(content);
         }
 
-        self.is_built = true;
-        self.root_entity
-    }
-}
-
-impl<'a, 'w, 's> Drop for TooltipWidgetBuilder<'a, 'w, 's> {
-    fn drop(&mut self) {
-        assert!(self.is_built, "TooltipWidgetBuilder must always be spawned.");
+        root_entity
     }
 }

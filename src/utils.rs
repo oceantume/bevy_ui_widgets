@@ -1,6 +1,8 @@
+use bevy_ecs::system::EntityCommands;
 use bevy_math::Vec2;
 use bevy_transform::components::GlobalTransform;
 use bevy_ui::{CalculatedClip, Node};
+use smallvec::SmallVec;
 
 pub fn get_uinode_clipped_rect(
     global_transform: &GlobalTransform,
@@ -18,3 +20,11 @@ pub fn get_uinode_clipped_rect(
     }
     (min, max)
 }
+
+/// An entity command runner function.
+pub type EntityCommandsRunner<'a, 'w, 's> = &'a dyn for<'b> Fn(&mut EntityCommands<'w, 's, 'b>);
+
+/// A shortcut type for lists of entity commands runners.
+///
+/// This uses a SmallVec to optimize space since two entries should be enough for 90% of use-cases.
+pub type EntityCommandsRunnersVec<'a, 'w, 's> = SmallVec<[EntityCommandsRunner<'a, 'w, 's>; 2]>;
