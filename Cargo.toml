@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 # TODO: Change these when merged
 bevy_app = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
+bevy_asset = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
 bevy_ecs = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
 bevy_math = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
 bevy_render = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
@@ -32,3 +33,11 @@ path = "examples/tooltip_custom.rs"
 [[example]]
 name = "slider"
 path = "examples/slider.rs"
+
+[[example]]
+name = "interaction"
+path = "examples/interaction.rs"
+
+[[example]]
+name = "checkbox"
+path = "examples/checkbox.rs"

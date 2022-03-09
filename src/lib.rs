@@ -2,6 +2,7 @@
 
 use bevy_app::{PluginGroup, PluginGroupBuilder};
 
+pub mod components;
 pub mod slider;
 pub mod tooltip;
 pub mod utils;
@@ -12,5 +13,7 @@ impl PluginGroup for AllWidgetsPlugins {
     fn build(&mut self, group: &mut PluginGroupBuilder) {
         group.add(tooltip::TooltipPlugin);
         group.add(slider::SliderPlugin);
+        group.add(components::interaction::InteractionComponentsPlugin);
+        group.add(components::toggle::ToggleComponentsPlugin);
     }
 }
