@@ -1,5 +1,8 @@
 use bevy::prelude::*;
-use bevy_ui_widgets::{components::interaction::InteractionUiColor, *};
+use bevy_ui_widgets::{
+    components::interaction::{InteractionCursorIcon, InteractionUiColor},
+    *,
+};
 
 fn main() {
     App::new()
@@ -35,6 +38,11 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             none: NORMAL_BUTTON,
             hovered: HOVERED_BUTTON,
             clicked: PRESSED_BUTTON,
+        })
+        .insert(InteractionCursorIcon {
+            hovered: CursorIcon::Hand,
+            clicked: CursorIcon::Hand,
+            ..default()
         })
         .with_children(|parent| {
             parent.spawn_bundle(TextBundle {

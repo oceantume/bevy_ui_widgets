@@ -3,6 +3,7 @@ use bevy_asset::prelude::*;
 use bevy_ecs::prelude::*;
 use bevy_render::prelude::*;
 use bevy_ui::*;
+use bevy_window::prelude::*;
 
 use super::toggle::Toggle;
 
@@ -11,7 +12,8 @@ pub struct InteractionComponentsPlugin;
 impl Plugin for InteractionComponentsPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(interaction_color)
-            .add_system(interaction_image);
+            .add_system(interaction_image)
+            .add_system(interaction_cursor);
     }
 }
 
@@ -28,7 +30,10 @@ pub struct InteractionUiColor {
 fn interaction_color(
     mut query: Query<
         (&Interaction, &InteractionUiColor, &mut UiColor),
-        (Without<Toggle>, Or<(Changed<Interaction>, Changed<InteractionUiColor>)>),
+        (
+            Without<Toggle>,
+            Or<(Changed<Interaction>, Changed<InteractionUiColor>)>,
+        ),
     >,
 ) {
     for (interaction, interaction_color, mut color) in query.iter_mut() {
@@ -56,7 +61,10 @@ pub struct InteractionUiImage {
 fn interaction_image(
     mut query: Query<
         (&Interaction, &InteractionUiImage, &mut UiImage),
-        (Without<Toggle>, Or<(Changed<Interaction>, Changed<InteractionUiImage>)>),
+        (
+            Without<Toggle>,
+            Or<(Changed<Interaction>, Changed<InteractionUiImage>)>,
+        ),
     >,
 ) {
     for (interaction, interaction_image, mut image) in query.iter_mut() {
@@ -71,3 +79,38 @@ fn interaction_image(
     }
 }
 
+#[derive(Component, Clone, Debug)]
+pub struct InteractionCursorIcon {
+    pub clicked: CursorIcon,
+    pub hovered: CursorIcon,
+    pub none: CursorIcon,
+}
+
+impl Default for InteractionCursorIcon {
+    fn default() -> Self {
+        Self {
+            clicked: CursorIcon::Default,
+            hovered: CursorIcon::Default,
+            none: CursorIcon::Default,
+        }
+    }
+}
+
+fn interaction_cursor(
+    query: Query<
+        (&Interaction, &InteractionCursorIcon),
+        (Or<(Changed<Interaction>, Changed<InteractionCursorIcon>)>),
+    >,
+    mut windows: ResMut<Windows>,
+) {
+    for (interaction, interaction_icon) in query.iter() {
+        if let Some(window) = windows.get_primary_mut() {
+            let icon = match interaction {
+                Interaction::Clicked => interaction_icon.clicked,
+                Interaction::Hovered => interaction_icon.hovered,
+                Interaction::None => interaction_icon.none,
+            };
+            window.set_cursor_icon(icon);
+        }
+    }
+}
