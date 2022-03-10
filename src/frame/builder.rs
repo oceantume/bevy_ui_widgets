@@ -13,7 +13,7 @@ pub struct FrameWidgetBuilder<'a, 'w, 's> {
     root: WidgetBuilderEntity<'a, 'w, 's, Option<NodeBundle>>,
     title_bar: WidgetBuilderEntity<'a, 'w, 's, Option<ButtonBundle>>,
     title_text: WidgetBuilderEntity<'a, 'w, 's, Option<TextBundle>>,
-    title_close_button: WidgetBuilderEntity<'a, 'w, 's, Option<ButtonBundle>>,
+    close_button: WidgetBuilderEntity<'a, 'w, 's, Option<ButtonBundle>>,
     content_entity: Option<Entity>,
 }
 
@@ -48,17 +48,16 @@ impl<'a, 'w, 's> FrameWidgetBuilder<'a, 'w, 's> {
                     },
                     ..default()
                 },
-                color: Color::RED.into(),
+                color: Color::NONE.into(),
                 ..default()
             })),
             title_text: WidgetBuilderEntity::new(Some(default())),
-            title_close_button: WidgetBuilderEntity::new(Some(ButtonBundle {
+            close_button: WidgetBuilderEntity::new(Some(ButtonBundle {
                 style: Style {
                     //size: Size::new(Val::Px(35.0), Val::Px(35.0)),
                     aspect_ratio: Some(1.0),
                     ..default()
                 },
-                color: Color::GREEN.into(),
                 ..default()
             })),
             content_entity: None,
@@ -79,15 +78,53 @@ impl<'a, 'w, 's> FrameWidgetBuilder<'a, 'w, 's> {
     pub fn root_bundle(&mut self, extend: impl FnOnce(NodeBundle) -> NodeBundle) -> &mut Self {
         self.root.bundle = Some(extend(std::mem::take(&mut self.root.bundle).unwrap()));
         self
-    } 
+    }
 
-    // TODO: Customization of all fields.
-
+    /// Allows to run commands on the title bar entity after it's spawned.
     pub fn title_bar_commands(
         &mut self,
         run_commands: impl for<'b> Fn(&mut EntityCommands<'w, 's, 'b>) + 'a,
     ) -> &mut Self {
         self.title_bar.commands_runners.push(Box::new(run_commands));
+        self
+    }
+
+    /// Allows to edit the title bar bundle before it is spawned.
+    /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
+    pub fn title_bar_bundle(&mut self, extend: impl FnOnce(ButtonBundle) -> ButtonBundle) -> &mut Self {
+        self.title_bar.bundle = Some(extend(std::mem::take(&mut self.title_bar.bundle).unwrap()));
+        self
+    }
+
+    /// Allows to run commands on the title text entity after it's spawned.
+    pub fn title_text_commands(
+        &mut self,
+        run_commands: impl for<'b> Fn(&mut EntityCommands<'w, 's, 'b>) + 'a,
+    ) -> &mut Self {
+        self.title_text.commands_runners.push(Box::new(run_commands));
+        self
+    }
+
+    /// Allows to edit the title text bundle before it is spawned.
+    /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
+    pub fn title_text_bundle(&mut self, extend: impl FnOnce(TextBundle) -> TextBundle) -> &mut Self {
+        self.title_text.bundle = Some(extend(std::mem::take(&mut self.title_text.bundle).unwrap()));
+        self
+    }
+
+    /// Allows to run commands on the close button entity after it's spawned.
+    pub fn close_button_commands(
+        &mut self,
+        run_commands: impl for<'b> Fn(&mut EntityCommands<'w, 's, 'b>) + 'a,
+    ) -> &mut Self {
+        self.close_button.commands_runners.push(Box::new(run_commands));
+        self
+    }
+
+    /// Allows to edit the title close button bundle before it is spawned.
+    /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
+    pub fn close_button_bundle(&mut self, extend: impl FnOnce(ButtonBundle) -> ButtonBundle) -> &mut Self {
+        self.close_button.bundle = Some(extend(std::mem::take(&mut self.close_button.bundle).unwrap()));
         self
     }
 
@@ -121,10 +158,10 @@ impl<'a, 'w, 's> FrameWidgetBuilder<'a, 'w, 's> {
             .run_entity_commands(&self.title_text.commands_runners)
             .id();
 
-        let title_close_button = commands
-            .spawn_bundle(std::mem::take(&mut self.title_close_button.bundle).unwrap())
+        let close_button = commands
+            .spawn_bundle(std::mem::take(&mut self.close_button.bundle).unwrap())
             .insert(RootEntity(root))
-            .run_entity_commands(&self.title_close_button.commands_runners)
+            .run_entity_commands(&self.close_button.commands_runners)
             .id();
 
         if let Some(content) = self.content_entity {
@@ -134,7 +171,7 @@ impl<'a, 'w, 's> FrameWidgetBuilder<'a, 'w, 's> {
         commands.entity(root).push_children(&[title_bar]);
         commands
             .entity(title_bar)
-            .push_children(&[title_text, title_close_button]);
+            .push_children(&[title_text, close_button]);
 
         root
     }
