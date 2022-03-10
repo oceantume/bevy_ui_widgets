@@ -23,6 +23,10 @@ smallvec = "1.8.0"
 bevy = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
 
 [[example]]
+name = "frame"
+path = "examples/frame.rs"
+
+[[example]]
 name = "tooltip"
 path = "examples/tooltip.rs"
 
@@ -39,5 +43,5 @@ name = "interaction"
 path = "examples/interaction.rs"
 
 [[example]]
-name = "checkbox"
-path = "examples/checkbox.rs"
+name = "toggle"
+path = "examples/toggle.rs"
