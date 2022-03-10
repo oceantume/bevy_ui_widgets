@@ -5,7 +5,7 @@ use bevy_transform::hierarchy::BuildChildren;
 use bevy_ui::{entity::*, *};
 use bevy_utils::*;
 
-use crate::utils::*;
+use crate::{utils::*, components::grab::Grab};
 
 use super::*;
 
@@ -14,6 +14,12 @@ pub struct SliderWidgetBuilder<'a, 'w, 's> {
     root: WidgetBuilderEntity<'a, 'w, 's, Option<SliderBundle>>,
     track: WidgetBuilderEntity<'a, 'w, 's, Option<NodeBundle>>,
     thumb: WidgetBuilderEntity<'a, 'w, 's, Option<NodeBundle>>,
+}
+
+impl Default for SliderWidgetBuilder<'_, '_, '_> {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
@@ -84,7 +90,7 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     pub fn track_commands(
         &mut self,
         run_commands: impl for<'b> Fn(&mut EntityCommands<'w, 's, 'b>) + 'a,
-    ) -> &Self {
+    ) -> &mut Self {
         self.track.commands_runners.push(Box::new(run_commands));
         self
     }
@@ -100,7 +106,7 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     pub fn thumb_commands(
         &mut self,
         run_commands: impl for<'b> Fn(&mut EntityCommands<'w, 's, 'b>) + 'a,
-    ) -> &Self {
+    ) -> &mut Self {
         self.thumb.commands_runners.push(Box::new(run_commands));
         self
     }
@@ -132,6 +138,7 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
             .spawn_bundle(std::mem::take(&mut self.thumb.bundle).unwrap())
             .run_entity_commands(&self.thumb.commands_runners)
             .insert(Interaction::None)
+            .insert(Grab)
             .insert(SliderThumbNode)
             .insert(WidgetRoot(root))
             .id();
