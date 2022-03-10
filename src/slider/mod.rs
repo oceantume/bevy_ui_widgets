@@ -5,7 +5,6 @@ use bevy_render::{color::Color, view::Visibility};
 use bevy_text::*;
 use bevy_transform::components::*;
 use bevy_ui::*;
-use bevy_window::*;
 
 mod builder;
 mod tooltip;
@@ -13,7 +12,7 @@ mod tooltip;
 pub use builder::*;
 use tooltip::*;
 
-use crate::{tooltip::*, utils::get_uinode_clipped_rect};
+use crate::{components::grab::Grabbed, tooltip::*, utils::get_uinode_clipped_rect};
 
 pub struct SliderPlugin;
 
@@ -21,7 +20,6 @@ impl Plugin for SliderPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(slider_test)
             .add_system(slider_thumb_update)
-            .add_system(slider_thumb_grab)
             .add_system(slider_thumb_move)
             .add_system_to_stage(CoreStage::PreUpdate, slider_tooltip)
             .add_system(slider_tooltip_update)
@@ -129,25 +127,8 @@ fn slider_thumb_update(
     }
 }
 
-fn slider_thumb_grab(
-    mut commands: Commands,
-    thumbs_q: Query<(Entity, &Interaction, Option<&SliderThumbActive>), Changed<Interaction>>,
-) {
-    for (entity, interaction, active) in thumbs_q.iter() {
-        match interaction {
-            Interaction::Clicked => {
-                commands.entity(entity).insert(SliderThumbActive);
-            }
-            Interaction::Hovered | Interaction::None if active.is_some() => {
-                commands.entity(entity).remove::<SliderThumbActive>();
-            }
-            _ => (),
-        }
-    }
-}
-
 fn slider_thumb_move(
-    thumb_q: Query<&WidgetRoot, With<SliderThumbActive>>,
+    thumb_q: Query<(&WidgetRoot, &Grabbed)>,
     track_q: Query<
         (
             &WidgetRoot,
@@ -158,32 +139,25 @@ fn slider_thumb_move(
         With<SliderTrackNode>,
     >,
     mut slider_q: Query<&mut Slider>,
-    windows: Res<Windows>,
 ) {
-    let cursor_position = windows
-        .get_primary()
-        .and_then(|window| window.cursor_position());
-
-    for root in thumb_q.iter() {
+    for (root, grabbed) in thumb_q.iter() {
         if let Ok(mut slider) = slider_q.get_mut(root.0) {
             if let Some((_, node, global_transform, clip)) = track_q
                 .iter()
                 .find(|(track_root, ..)| track_root.0 == root.0)
             {
-                if let Some(cursor_position) = cursor_position {
-                    let (min, max) = get_uinode_clipped_rect(global_transform, node, clip);
-                    let x = f32::clamp(cursor_position.x, min.x, max.x) - min.x;
-                    let mut value =
-                        ((x * (slider.max - slider.min) as f32) / (max.x - min.x)) as i32;
+                let cursor_position = grabbed.cursor_position + grabbed.cursor_offset;
+                let (min, max) = get_uinode_clipped_rect(global_transform, node, clip);
+                let x = f32::clamp(cursor_position.x, min.x, max.x) - min.x;
+                let mut value = ((x * (slider.max - slider.min) as f32) / (max.x - min.x)) as i32;
 
-                    assert!(slider.step > 0 && slider.step <= slider.max - slider.min);
-                    if slider.step > 1 {
-                        value = ((value + slider.step / 2) / slider.step) * slider.step;
-                    }
+                assert!(slider.step > 0 && slider.step <= slider.max - slider.min);
+                if slider.step > 1 {
+                    value = ((value + slider.step / 2) / slider.step) * slider.step;
+                }
 
-                    if slider.value != value {
-                        slider.value = value;
-                    }
+                if slider.value != value {
+                    slider.value = value;
                 }
             }
         }
