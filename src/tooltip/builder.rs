@@ -13,6 +13,12 @@ pub struct TooltipWidgetBuilder<'a, 'w, 's> {
     content_entity: Option<Entity>,
 }
 
+impl Default for TooltipWidgetBuilder<'_, '_, '_> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<'a, 'w, 's> TooltipWidgetBuilder<'a, 'w, 's> {
     /// Creates a new tooltip builder
     pub fn new() -> TooltipWidgetBuilder<'a, 'w, 's> {
