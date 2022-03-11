@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_ui_widgets::{
+    components::toggle::Toggle,
     frame::*,
     slider::{SliderBundle, SliderWidgetBuilder},
     AllWidgetsPlugins,
@@ -12,6 +13,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(AllWidgetsPlugins)
         .add_startup_system(setup)
+        .add_system(minimize_button)
         .run();
 }
 
@@ -77,7 +79,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         .push_children(&[section])
         .id();
 
-    FrameWidgetBuilder::new()
+    let frame = FrameWidgetBuilder::new()
         .root_bundle(|bundle| NodeBundle {
             style: Style {
                 position: Rect {
@@ -85,12 +87,112 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     top: Val::Px(20.),
                     ..default()
                 },
-                size: Size::new(Val::Px(300.0), Val::Px(200.0)),
+                // NOTE: min_size isn't working here for some reason.
+                size: Size::new(Val::Px(250.0), Val::Undefined),
                 ..bundle.style
             },
             color: Color::rgb(0.05, 0.05, 0.05).into(),
             ..bundle
         })
+        .title_bar_bundle(|bundle| ButtonBundle {
+            color: Color::rgb(0.15, 0.15, 0.15).into(),
+            ..bundle
+        })
+        .title_text_bundle(|bundle| TextBundle {
+            text: Text::with_section(
+                "Hello, My Frame!",
+                TextStyle {
+                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                    font_size: 16.0,
+                    color: Color::rgb(0.9, 0.9, 0.9),
+                },
+                default(),
+            ),
+            ..bundle
+        })
+        .close_button_bundle(|bundle| ButtonBundle {
+            style: Style {
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..bundle.style
+            },
+            color: Color::rgb(0.15, 0.15, 0.15).into(),
+            ..bundle
+        })
+        .close_button_commands(|commands| {
+            let button = commands.id();
+            let text = commands
+                .commands()
+                .spawn_bundle(TextBundle {
+                    text: Text::with_section(
+                        "-",
+                        TextStyle {
+                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                            font_size: 16.0,
+                            color: Color::rgb(0.9, 0.9, 0.9),
+                        },
+                        default(),
+                    ),
+                    ..Default::default()
+                })
+                .insert(RootEntity(button))
+                .insert(MinimizeButtonText)
+                .id();
+
+            commands
+                .insert(MinimizeButton)
+                .insert(Toggle::default())
+                .add_child(text);
+        })
         .with_content(content)
         .spawn(&mut commands);
+
+    commands.entity(content).insert(Content {
+        frame_entity: frame,
+    });
+}
+
+#[derive(Component)]
+struct MinimizeButton;
+
+#[derive(Component)]
+struct MinimizeButtonText;
+
+#[derive(Component)]
+struct Content {
+    frame_entity: Entity,
+}
+
+fn minimize_button(
+    button_query: Query<(Entity, &RootEntity, &Toggle), (With<MinimizeButton>, Changed<Toggle>)>,
+    mut button_text_query: Query<(&RootEntity, &mut Text), With<MinimizeButtonText>>,
+    mut content_query: Query<(&Content, &mut Style)>,
+) {
+    for (button, root, toggle) in button_query.iter() {
+        let content = content_query
+            .iter_mut()
+            .find(|(content, ..)| content.frame_entity == root.0);
+        let text = button_text_query
+            .iter_mut()
+            .find(|(root, ..)| button == root.0);
+
+        match toggle {
+            Toggle::Off => {
+                if let Some((_, mut style)) = content {
+                    style.display = Display::Flex;
+                }
+                if let Some((_, mut text)) = text {
+                    text.sections[0].value = "-".to_string();
+                }
+            }
+            Toggle::On => {
+                if let Some((_, mut style)) = content {
+                    style.display = Display::None;
+                }
+                if let Some((_, mut text)) = text {
+                    text.sections[0].value = "+".to_string();
+                }
+            }
+        }
+    }
 }

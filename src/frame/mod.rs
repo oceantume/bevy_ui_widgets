@@ -32,7 +32,7 @@ pub struct FrameGrabber;
 
 /// Describes a frame's root UI node.
 #[derive(Component)]
-pub struct RootEntity(Entity);
+pub struct RootEntity(pub Entity);
 
 fn move_frame(
     query: Query<(&RootEntity, &Grabbed), (With<FrameGrabber>, Changed<Grabbed>)>,

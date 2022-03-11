@@ -42,6 +42,7 @@ impl<'a, 'w, 's> FrameWidgetBuilder<'a, 'w, 's> {
             title_bar: WidgetBuilderEntity::new(Some(ButtonBundle {
                 style: Style {
                     justify_content: JustifyContent::SpaceBetween,
+                    align_items: AlignItems::Center,
                     min_size: Size {
                         height: Val::Px(25.0),
                         ..default()
@@ -51,7 +52,13 @@ impl<'a, 'w, 's> FrameWidgetBuilder<'a, 'w, 's> {
                 color: Color::NONE.into(),
                 ..default()
             })),
-            title_text: WidgetBuilderEntity::new(Some(default())),
+            title_text: WidgetBuilderEntity::new(Some(TextBundle {
+                style: Style {
+                    margin: Rect::all(Val::Px(5.0)),
+                    ..default()
+                },
+                ..default()
+            })),
             close_button: WidgetBuilderEntity::new(Some(ButtonBundle {
                 style: Style {
                     //size: Size::new(Val::Px(35.0), Val::Px(35.0)),
