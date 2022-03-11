@@ -51,7 +51,7 @@ impl<'a, 'w, 's> TooltipWidgetBuilder<'a, 'w, 's> {
         &mut self,
         extend: impl FnOnce(TooltipBundle) -> TooltipBundle,
     ) -> &mut Self {
-        self.root.bundle = Some(extend(std::mem::take(&mut self.root.bundle).unwrap()));
+        self.root.bundle = Some(extend(self.root.bundle.take().unwrap()));
         self
     }
 
@@ -66,7 +66,7 @@ impl<'a, 'w, 's> TooltipWidgetBuilder<'a, 'w, 's> {
     /// Using the builder again after calling this will panic.
     pub fn spawn(&mut self, commands: &'a mut Commands<'w, 's>) -> Entity {
         let root_entity = commands
-            .spawn_bundle(std::mem::take(&mut self.root.bundle).unwrap())
+            .spawn_bundle(self.root.bundle.take().unwrap())
             .run_entity_commands(&self.root.commands_runners)
             .id();
 

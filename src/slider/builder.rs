@@ -82,7 +82,7 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     /// Allows you to edit the root bundle before it is spawned.
     /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
     pub fn root_bundle(&mut self, extend: impl FnOnce(SliderBundle) -> SliderBundle) -> &mut Self {
-        self.root.bundle = Some(extend(std::mem::take(&mut self.root.bundle).unwrap()));
+        self.root.bundle = Some(extend(self.root.bundle.take().unwrap()));
         self
     }
 
@@ -98,7 +98,7 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     /// Allows editing the track bundle before it is spawned.
     /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
     pub fn track_bundle(&mut self, extend: impl FnOnce(NodeBundle) -> NodeBundle) -> &mut Self {
-        self.track.bundle = Some(extend(std::mem::take(&mut self.track.bundle).unwrap()));
+        self.track.bundle = Some(extend(self.track.bundle.take().unwrap()));
         self
     }
 
@@ -114,7 +114,7 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     /// Allows you to edit the thumb bundle before it is spawned.
     /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
     pub fn thumb_bundle(&mut self, extend: impl FnOnce(NodeBundle) -> NodeBundle) -> &mut Self {
-        self.thumb.bundle = Some(extend(std::mem::take(&mut self.thumb.bundle).unwrap()));
+        self.thumb.bundle = Some(extend(self.thumb.bundle.take().unwrap()));
         self
     }
 
@@ -123,19 +123,19 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     /// created and destroyed
     pub fn spawn(&mut self, commands: &'a mut Commands<'w, 's>) -> Entity {
         let root = commands
-            .spawn_bundle(std::mem::take(&mut self.root.bundle).unwrap())
+            .spawn_bundle(self.root.bundle.take().unwrap())
             .run_entity_commands(&self.root.commands_runners)
             .id();
 
         let track = commands
-            .spawn_bundle(std::mem::take(&mut self.track.bundle).unwrap())
+            .spawn_bundle(self.track.bundle.take().unwrap())
             .run_entity_commands(&self.track.commands_runners)
             .insert(SliderTrackNode)
             .insert(WidgetRoot(root))
             .id();
 
         let thumb = commands
-            .spawn_bundle(std::mem::take(&mut self.thumb.bundle).unwrap())
+            .spawn_bundle(self.thumb.bundle.take().unwrap())
             .run_entity_commands(&self.thumb.commands_runners)
             .insert(Interaction::None)
             .insert(Grab)

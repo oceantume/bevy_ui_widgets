@@ -83,7 +83,7 @@ impl<'a, 'w, 's> FrameWidgetBuilder<'a, 'w, 's> {
     /// Allows to edit the root bundle before it is spawned.
     /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
     pub fn root_bundle(&mut self, extend: impl FnOnce(NodeBundle) -> NodeBundle) -> &mut Self {
-        self.root.bundle = Some(extend(std::mem::take(&mut self.root.bundle).unwrap()));
+        self.root.bundle = Some(extend(self.root.bundle.take().unwrap()));
         self
     }
 
@@ -99,7 +99,7 @@ impl<'a, 'w, 's> FrameWidgetBuilder<'a, 'w, 's> {
     /// Allows to edit the title bar bundle before it is spawned.
     /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
     pub fn title_bar_bundle(&mut self, extend: impl FnOnce(ButtonBundle) -> ButtonBundle) -> &mut Self {
-        self.title_bar.bundle = Some(extend(std::mem::take(&mut self.title_bar.bundle).unwrap()));
+        self.title_bar.bundle = Some(extend(self.title_bar.bundle.take().unwrap()));
         self
     }
 
@@ -115,7 +115,7 @@ impl<'a, 'w, 's> FrameWidgetBuilder<'a, 'w, 's> {
     /// Allows to edit the title text bundle before it is spawned.
     /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
     pub fn title_text_bundle(&mut self, extend: impl FnOnce(TextBundle) -> TextBundle) -> &mut Self {
-        self.title_text.bundle = Some(extend(std::mem::take(&mut self.title_text.bundle).unwrap()));
+        self.title_text.bundle = Some(extend(self.title_text.bundle.take().unwrap()));
         self
     }
 
@@ -131,7 +131,7 @@ impl<'a, 'w, 's> FrameWidgetBuilder<'a, 'w, 's> {
     /// Allows to edit the title close button bundle before it is spawned.
     /// It is recommended to keep unmodified original values by using the struct extend syntax `..`.
     pub fn close_button_bundle(&mut self, extend: impl FnOnce(ButtonBundle) -> ButtonBundle) -> &mut Self {
-        self.close_button.bundle = Some(extend(std::mem::take(&mut self.close_button.bundle).unwrap()));
+        self.close_button.bundle = Some(extend(self.close_button.bundle.take().unwrap()));
         self
     }
 
@@ -146,13 +146,13 @@ impl<'a, 'w, 's> FrameWidgetBuilder<'a, 'w, 's> {
     /// Using the builder again after calling this will panic.
     pub fn spawn(&mut self, commands: &'a mut Commands<'w, 's>) -> Entity {
         let root = commands
-            .spawn_bundle(std::mem::take(&mut self.root.bundle).unwrap())
+            .spawn_bundle(self.root.bundle.take().unwrap())
             .insert(Frame)
             .run_entity_commands(&self.root.commands_runners)
             .id();
 
         let title_bar = commands
-            .spawn_bundle(std::mem::take(&mut self.title_bar.bundle).unwrap())
+            .spawn_bundle(self.title_bar.bundle.take().unwrap())
             .insert(RootEntity(root))
             .insert(Grab)
             .insert(FrameGrabber)
@@ -160,13 +160,13 @@ impl<'a, 'w, 's> FrameWidgetBuilder<'a, 'w, 's> {
             .id();
 
         let title_text = commands
-            .spawn_bundle(std::mem::take(&mut self.title_text.bundle).unwrap())
+            .spawn_bundle(self.title_text.bundle.take().unwrap())
             .insert(RootEntity(root))
             .run_entity_commands(&self.title_text.commands_runners)
             .id();
 
         let close_button = commands
-            .spawn_bundle(std::mem::take(&mut self.close_button.bundle).unwrap())
+            .spawn_bundle(self.close_button.bundle.take().unwrap())
             .insert(RootEntity(root))
             .run_entity_commands(&self.close_button.commands_runners)
             .id();
