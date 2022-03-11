@@ -51,7 +51,7 @@ See the [slider example](/examples/slider.rs) for a concrete example of spawning
 
 A frame is like a window that exists in the UI of your application. A frame has a title bar with a close button, and it can have any content inside of it. It can be moved around, resized, minimized and closed.
 
-![Frame](docs/assets/frame.mp4)
+https://user-images.githubusercontent.com/1060971/157922914-15b4a45a-60b1-4a24-a6cb-1dfbbd1533b3.mp4
 
 ### Tooltip
 
