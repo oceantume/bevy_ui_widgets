@@ -1,11 +1,12 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use bevy_math::prelude::*;
-use bevy_render::view::Visibility;
-use bevy_text::*;
-use bevy_transform::components::*;
-use bevy_ui::*;
-use bevy_window::*;
+use bevy_render::prelude::*;
+use bevy_text::prelude::*;
+use bevy_transform::prelude::*;
+use bevy_ui::{prelude::*, FocusPolicy};
+use bevy_utils::prelude::*;
+use bevy_window::prelude::*;
 
 mod builder;
 pub use builder::*;
@@ -14,8 +15,7 @@ pub struct TooltipPlugin;
 
 impl Plugin for TooltipPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_system_to_stage(CoreStage::PreUpdate, position_update_system)
+        app.add_system_to_stage(CoreStage::PreUpdate, position_update_system)
             .add_system_to_stage(CoreStage::PreUpdate, position_update_cursor_system)
             .add_system(update_text);
     }
@@ -48,14 +48,16 @@ impl Default for TooltipPosition {
 
 /// Describes the alignment of the tooltip relative to its position.
 /// This will be ignored when using a Rect position.
-///
-/// TODO: This should support combinations like BottomLeft, Left, TopLeft, Top, etc
 #[derive(Component)]
 pub enum TooltipAlign {
+    Bottom,
+    //BottomLeft,
+    //BottomRight,
     Left,
     Right,
     Top,
-    Bottom,
+    //TopLeft,
+    //TopRight,
 }
 
 impl Default for TooltipAlign {
@@ -114,21 +116,46 @@ fn position_update_system(
 }
 
 fn position_update_cursor_system(
-    mut tooltip_q: Query<(&TooltipPosition, &TooltipAlign, &mut Style), With<Tooltip>>,
+    mut tooltip_q: Query<(&TooltipPosition, &TooltipAlign, &Node, &mut Style), With<Tooltip>>,
     windows: Res<Windows>,
 ) {
-    for (position, _, mut style) in tooltip_q.iter_mut() {
+    for (position, align, node, mut style) in tooltip_q.iter_mut() {
         if let TooltipPosition::FollowCursor = position {
             let window = windows.get_primary().unwrap();
             if let Some(pos) = window.cursor_position() {
-                // TODO: We probably want to base this on the ui camera projection here.
-                style.position = Rect {
-                    top: Val::Px(window.height() - pos.y + 5.),
-                    left: Val::Px(pos.x + 5.),
-                    ..Default::default()
-                }
+                style.position = calculate_tooltip_rect(align, &node.size, &pos, 5.0);
             }
         }
+    }
+}
+
+fn calculate_tooltip_rect(
+    align: &TooltipAlign,
+    tooltip_size: &Vec2,
+    point: &Vec2,
+    offset: f32,
+) -> Rect<Val> {
+    match align {
+        TooltipAlign::Bottom => Rect {
+            bottom: Val::Px(point.y - tooltip_size.y - offset),
+            left: Val::Px(point.x - (tooltip_size.x / 2.0)),
+            ..default()
+        },
+        TooltipAlign::Left => Rect {
+            left: Val::Px(point.x - tooltip_size.x - offset),
+            bottom: Val::Px(point.y - (tooltip_size.y / 2.0)),
+            ..default()
+        },
+        TooltipAlign::Right => Rect {
+            left: Val::Px(point.x + offset),
+            bottom: Val::Px(point.y - (tooltip_size.y / 2.0)),
+            ..default()
+        },
+        TooltipAlign::Top => Rect {
+            bottom: Val::Px(point.y + offset),
+            left: Val::Px(point.x - (tooltip_size.x / 2.0)),
+            ..default()
+        },
     }
 }
 
