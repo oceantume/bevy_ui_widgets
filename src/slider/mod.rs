@@ -106,20 +106,21 @@ fn slider_thumb_update(
     slider_q: Query<&Slider, Or<(Changed<Slider>, Changed<Node>, Changed<GlobalTransform>)>>,
 ) {
     for (root, thumb_node, mut thumb_style) in thumb_q.iter_mut() {
-        let thumb_width = thumb_node.size.y;
-
         if let Ok(slider) = slider_q.get(root.0) {
             if let Some((_, node, global_transform, clip)) = track_q
                 .iter()
                 .find(|(track_root, ..)| track_root.0 == root.0)
             {
-                //println!("Updated thumb");
-
-                let (min, max) = get_uinode_clipped_rect(global_transform, node, clip);
-                let x = (slider.value as f32 * (max.x - min.x)) / (slider.max - slider.min) as f32;
-
+                let (min_x, max_x) = {
+                    let (min, max) = get_uinode_clipped_rect(global_transform, node, clip);
+                    let min_x = min.x + (thumb_node.size.x / 2.0);
+                    let max_x = max.x - (thumb_node.size.x / 2.0);
+                    (min_x, max_x)
+                };
+                assert!(slider.step > 0 && slider.step <= slider.max - slider.min);
+                let x = (slider.value as f32 * (max_x - min_x)) / (slider.max - slider.min) as f32;
                 thumb_style.position = Rect {
-                    left: Val::Px(x - thumb_width / 2.0),
+                    left: Val::Px(x),
                     ..Default::default()
                 };
             }
@@ -128,7 +129,7 @@ fn slider_thumb_update(
 }
 
 fn slider_thumb_move(
-    thumb_q: Query<(&WidgetRoot, &Grabbed)>,
+    thumb_q: Query<(&WidgetRoot, &Grabbed, &Node)>,
     track_q: Query<
         (
             &WidgetRoot,
@@ -140,16 +141,23 @@ fn slider_thumb_move(
     >,
     mut slider_q: Query<&mut Slider>,
 ) {
-    for (root, grabbed) in thumb_q.iter() {
+    for (root, grabbed, thumb_node) in thumb_q.iter() {
         if let Ok(mut slider) = slider_q.get_mut(root.0) {
             if let Some((_, node, global_transform, clip)) = track_q
                 .iter()
                 .find(|(track_root, ..)| track_root.0 == root.0)
             {
                 let cursor_position = grabbed.cursor_position + grabbed.cursor_offset;
-                let (min, max) = get_uinode_clipped_rect(global_transform, node, clip);
-                let x = f32::clamp(cursor_position.x, min.x, max.x) - min.x;
-                let mut value = ((x * (slider.max - slider.min) as f32) / (max.x - min.x)) as i32;
+
+                let (min_x, max_x) = {
+                    let (min, max) = get_uinode_clipped_rect(global_transform, node, clip);
+                    let min_x = min.x + (thumb_node.size.x / 2.0);
+                    let max_x = max.x - (thumb_node.size.x / 2.0);
+                    (min_x, max_x)
+                };
+
+                let x = f32::clamp(cursor_position.x, min_x, max_x) - min_x;
+                let mut value = ((x * (slider.max - slider.min) as f32) / (max_x - min_x)) as i32;
 
                 assert!(slider.step > 0 && slider.step <= slider.max - slider.min);
                 if slider.step > 1 {
