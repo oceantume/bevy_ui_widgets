@@ -1,7 +1,7 @@
 use bevy_ecs::prelude::*;
-use bevy_text::*;
-use bevy_transform::hierarchy::DespawnRecursiveExt;
-use bevy_ui::{entity::*, *};
+use bevy_text::prelude::*;
+use bevy_transform::prelude::*;
+use bevy_ui::prelude::*;
 
 use super::*;
 
@@ -18,9 +18,9 @@ pub(crate) fn slider_tooltip(
                 text: Text::with_section(
                     "0",
                     slider_tooltip.text_style.clone(),
-                    Default::default(),
+                    default(),
                 ),
-                ..Default::default()
+                ..default()
             })
             .insert(SliderTooltipTextNode)
             .insert(WidgetRoot(root))

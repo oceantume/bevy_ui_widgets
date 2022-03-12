@@ -34,7 +34,7 @@ fn setup(mut commands: Commands) {
                 ..default()
             },
             color: TOGGLE_OFF_COLOR.into(),
-            ..Default::default()
+            ..default()
         })
         .insert(Toggle::default());
 }

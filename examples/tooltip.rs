@@ -28,9 +28,9 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     font_size: 25.0,
                     color: Color::rgb(0.9, 0.9, 0.9),
                 },
-                Default::default(),
+                default(),
             ),
-            ..Default::default()
+            ..default()
         })
         .id();
 

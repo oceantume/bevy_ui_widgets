@@ -1,10 +1,11 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use bevy_math::prelude::*;
-use bevy_render::{color::Color, view::Visibility};
-use bevy_text::*;
-use bevy_transform::components::*;
-use bevy_ui::*;
+use bevy_render::prelude::*;
+use bevy_text::prelude::*;
+use bevy_transform::prelude::*;
+use bevy_ui::{prelude::*, FocusPolicy};
+use bevy_utils::prelude::*;
 
 mod builder;
 mod tooltip;
@@ -12,7 +13,7 @@ mod tooltip;
 pub use builder::*;
 use tooltip::*;
 
-use crate::{components::grab::Grabbed, tooltip::*, utils::get_uinode_clipped_rect};
+use crate::{components::grab::Grabbed, tooltip::*, utils::*};
 
 pub struct SliderPlugin;
 
@@ -121,7 +122,7 @@ fn slider_thumb_update(
                 let x = (slider.value as f32 * (max_x - min_x)) / (slider.max - slider.min) as f32;
                 thumb_style.position = Rect {
                     left: Val::Px(x),
-                    ..Default::default()
+                    ..default()
                 };
             }
         }
@@ -202,17 +203,17 @@ pub struct SliderBundle {
 impl Default for SliderBundle {
     fn default() -> Self {
         Self {
-            slider: Default::default(),
-            node: Default::default(),
+            slider: default(),
+            node: default(),
             style: Self::default_style(),
             color: Color::NONE.into(),
-            image: Default::default(),
-            focus_policy: Default::default(),
-            transform: Default::default(),
-            global_transform: Default::default(),
-            visibility: Default::default(),
-            corner_radius: Default::default(),
-            border: Default::default(),
+            image: default(),
+            focus_policy: default(),
+            transform: default(),
+            global_transform: default(),
+            visibility: default(),
+            corner_radius: default(),
+            border: default(),
         }
     }
 }
@@ -224,7 +225,7 @@ impl SliderBundle {
             flex_direction: FlexDirection::Column,
             justify_content: JustifyContent::SpaceAround,
             align_items: AlignItems::Stretch,
-            ..Default::default()
+            ..default()
         }
     }
 }

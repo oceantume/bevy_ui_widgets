@@ -133,7 +133,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                         },
                         default(),
                     ),
-                    ..Default::default()
+                    ..default()
                 })
                 .insert(RootEntity(button))
                 .insert(MinimizeButtonText)

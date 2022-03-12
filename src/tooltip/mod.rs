@@ -103,7 +103,7 @@ fn position_update_system(
                 style.position = Rect {
                     top: Val::Px(pos.y),
                     left: Val::Px(pos.x),
-                    ..Default::default()
+                    ..default()
                 };
             }
             TooltipPosition::Rect(rect) => {
@@ -202,19 +202,19 @@ pub struct TooltipBundle {
 impl Default for TooltipBundle {
     fn default() -> Self {
         Self {
-            tooltip: Default::default(),
+            tooltip: default(),
             position: TooltipPosition::FollowCursor,
             align: TooltipAlign::Right,
-            node: Default::default(),
+            node: default(),
             style: Self::default_style(),
-            color: Default::default(),
-            image: Default::default(),
-            focus_policy: Default::default(),
-            transform: Default::default(),
-            global_transform: Default::default(),
-            visibility: Default::default(),
-            corner_radius: Default::default(),
-            border: Default::default(),
+            color: default(),
+            image: default(),
+            focus_policy: default(),
+            transform: default(),
+            global_transform: default(),
+            visibility: default(),
+            corner_radius: default(),
+            border: default(),
         }
     }
 }
@@ -225,7 +225,7 @@ impl TooltipBundle {
             position_type: PositionType::Absolute,
             border: Rect::all(Val::Px(2.0)),
             align_items: AlignItems::Center,
-            ..Default::default()
+            ..default()
         }
     }
 }
