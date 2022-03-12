@@ -17,6 +17,7 @@ impl Plugin for TooltipPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_to_stage(CoreStage::PreUpdate, position_update_system)
             .add_system_to_stage(CoreStage::PreUpdate, position_update_cursor_system)
+            .add_system_to_stage(CoreStage::PreUpdate, position_update_node_system)
             .add_system(update_text);
     }
 }
@@ -32,6 +33,8 @@ pub struct Tooltip;
 pub enum TooltipPosition {
     /// Tooltip follows the cursor
     FollowCursor,
+    /// Tooltip is positioned relative to a node.
+    Node(Entity),
     /// Uses absolute positioning on the screen
     Absolute(Vec2),
     /// Raw rect. This is the same as using Manual and then setting style.rect
@@ -94,6 +97,7 @@ fn position_update_system(
             Changed<TooltipAlign>,
         )>,
     >,
+    node_query: Query<(&Node, &GlobalTransform)>,
 ) {
     for (position, _, mut style) in tooltip_q.iter_mut() {
         // TODO: handle TooltipAlign (we essentially change the top, left, right, bottom values accordingly)
@@ -111,7 +115,6 @@ fn position_update_system(
             }
             _ => (),
         }
-        //}
     }
 }
 
@@ -126,6 +129,55 @@ fn position_update_cursor_system(
                 style.position = calculate_tooltip_rect(align, &node.size, &pos, 5.0);
             }
         }
+    }
+}
+
+fn position_update_node_system(
+    mut tooltip_q: Query<
+        (
+            &TooltipPosition,
+            &TooltipAlign,
+            &GlobalTransform,
+            &Node,
+            &mut Style,
+        ),
+        With<Tooltip>,
+    >,
+    node_query: Query<(&GlobalTransform, &Node)>,
+) {
+    for (position, align, _transform, node, mut style) in tooltip_q.iter_mut() {
+        if let TooltipPosition::Node(position_entity) = position {
+            if let Ok((other_transform, other_node)) = node_query.get(*position_entity) {
+                if node.size == Vec2::splat(0.0) {
+                    // NOTE: node size is 0.0 for one frame when we update display, because it was not yet calculated.
+                    //  we will have to find a solution at some point, but for now this is a good-enough hack around it.
+                    return;
+                }
+
+                let point = calculate_node_point(
+                    align,
+                    &other_node.size,
+                    &other_transform.translation.truncate(),
+                );
+                let rect = calculate_tooltip_rect(align, &node.size, &point, 2.0);
+                if style.position != rect {
+                    style.position = rect;
+                }
+            }
+        }
+    }
+}
+
+fn calculate_node_point(
+    align: &TooltipAlign,
+    size: &Vec2,
+    position: &Vec2,
+) -> Vec2 {
+    match align {
+        TooltipAlign::Bottom => Vec2::new(position.x, position.y - (size.y / 2.0)),
+        TooltipAlign::Left => Vec2::new(position.x - (size.x / 2.0), position.y),
+        TooltipAlign::Right => Vec2::new(position.x + (size.x / 2.0), position.y),
+        TooltipAlign::Top => Vec2::new(position.x, position.y + (size.y / 2.0)),
     }
 }
 
