@@ -9,26 +9,29 @@ use super::*;
 pub(crate) fn slider_tooltip(
     mut commands: Commands,
     added_slider_q: Query<(Entity, &SliderTooltip), Added<SliderTooltip>>,
+    thumb_q: Query<(Entity, &WidgetRoot), With<SliderThumbNode>>,
     tooltip_q: Query<(Entity, &WidgetRoot)>,
     removed: RemovedComponents<SliderTooltip>,
 ) {
     for (root, slider_tooltip) in added_slider_q.iter() {
         let text = commands
             .spawn_bundle(TextBundle {
-                text: Text::with_section(
-                    "0",
-                    slider_tooltip.text_style.clone(),
-                    default(),
-                ),
+                text: Text::with_section("0", slider_tooltip.text_style.clone(), default()),
                 ..default()
             })
             .insert(SliderTooltipTextNode)
             .insert(WidgetRoot(root))
             .id();
 
+        let position = match thumb_q.iter().find(|(_, thumb_root)| thumb_root.0 == root) {
+            Some((thumb, _)) => TooltipPosition::Node(thumb),
+            None => TooltipPosition::FollowCursor,
+        };
+
         let tooltip = TooltipWidgetBuilder::new()
             .root_bundle(|bundle| TooltipBundle {
-                position: TooltipPosition::FollowCursor,
+                position,
+                align: TooltipAlign::Top,
                 ..bundle
             })
             .with_content(text)
