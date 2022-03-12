@@ -12,7 +12,7 @@ fn main() {
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn_bundle(UiCameraBundle::default());
 
-    let _slider_entity = SliderWidgetBuilder::new()
+    let slider = SliderWidgetBuilder::new()
         .root_bundle(|bundle| SliderBundle {
             slider: Slider {
                 value: 50,
@@ -28,17 +28,6 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             color: Color::NONE.into(),
             ..bundle
         })
-        .root_commands(|commands| {
-            commands.insert(SliderTooltip {
-                text_style: TextStyle {
-                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                    font_size: 25.0,
-                    color: Color::rgb(0.9, 0.9, 0.9),
-                },
-                color: Color::rgb(0.15, 0.15, 0.15),
-                corner_radius: CornerRadius::all(2.0),
-            });
-        })
         .track_bundle(|bundle| NodeBundle {
             corner_radius: CornerRadius::all(5.),
             ..bundle
@@ -48,4 +37,14 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..bundle
         })
         .spawn(&mut commands);
+
+    commands.entity(slider.root).insert(SliderTooltip {
+        text_style: TextStyle {
+            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            font_size: 25.0,
+            color: Color::rgb(0.9, 0.9, 0.9),
+        },
+        color: Color::rgb(0.15, 0.15, 0.15),
+        corner_radius: CornerRadius::all(2.0),
+    });
 }

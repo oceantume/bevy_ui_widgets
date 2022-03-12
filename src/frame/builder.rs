@@ -17,6 +17,14 @@ pub struct FrameWidgetBuilder<'a, 'w, 's> {
     content_entity: Option<Entity>,
 }
 
+pub struct FrameWidgetEntities {
+    pub root: Entity,
+    pub title_bar: Entity,
+    pub title_text: Entity,
+    pub close_button: Entity,
+    pub content: Option<Entity>,
+}
+
 impl Default for FrameWidgetBuilder<'_, '_, '_> {
     fn default() -> Self {
         Self::new()
@@ -144,7 +152,7 @@ impl<'a, 'w, 's> FrameWidgetBuilder<'a, 'w, 's> {
 
     /// Spawns the entity and returns the EntityCommands for the root node.
     /// Using the builder again after calling this will panic.
-    pub fn spawn(&mut self, commands: &'a mut Commands<'w, 's>) -> Entity {
+    pub fn spawn(&mut self, commands: &'a mut Commands<'w, 's>) -> FrameWidgetEntities {
         let root = commands
             .spawn_bundle(self.root.bundle.take().unwrap())
             .insert(Frame)
@@ -180,6 +188,12 @@ impl<'a, 'w, 's> FrameWidgetBuilder<'a, 'w, 's> {
             .entity(title_bar)
             .push_children(&[title_text, close_button]);
 
-        root
+        FrameWidgetEntities {
+            root,
+            title_bar,
+            title_text,
+            close_button,
+            content: self.content_entity,
+        } 
     }
 }

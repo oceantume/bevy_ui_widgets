@@ -16,6 +16,12 @@ pub struct SliderWidgetBuilder<'a, 'w, 's> {
     thumb: WidgetBuilderEntity<'a, 'w, 's, Option<NodeBundle>>,
 }
 
+pub struct SliderWidgetEntities {
+    pub root: Entity,
+    pub track: Entity,
+    pub thumb: Entity,
+}
+
 impl Default for SliderWidgetBuilder<'_, '_, '_> {
     fn default() -> Self {
         Self::new()
@@ -121,7 +127,7 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
     /// Consumes the builder, spawns the entity and returns the EntityCommands for the root node.
     /// Calling this will consume the builder. If you don't call this, entities will still be
     /// created and destroyed
-    pub fn spawn(&mut self, commands: &'a mut Commands<'w, 's>) -> Entity {
+    pub fn spawn(&mut self, commands: &'a mut Commands<'w, 's>) -> SliderWidgetEntities {
         let root = commands
             .spawn_bundle(self.root.bundle.take().unwrap())
             .run_entity_commands(&self.root.commands_runners)
@@ -145,6 +151,10 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
 
         commands.entity(root).push_children(&[track, thumb]);
 
-        root
+        SliderWidgetEntities {
+            root,
+            track,
+            thumb,
+        }
     }
 }

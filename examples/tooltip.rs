@@ -34,7 +34,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         })
         .id();
 
-    let tooltip = TooltipWidgetBuilder::new()
+    let _tooltip = TooltipWidgetBuilder::new()
         .root_bundle(|bundle| TooltipBundle {
             position: TooltipPosition::FollowCursor,
             color: Color::rgb(0.15, 0.15, 0.15).into(),
@@ -42,8 +42,6 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         })
         .with_content(text)
         .spawn(&mut commands);
-
-    commands.entity(tooltip);
 
     commands.insert_resource(MyTooltipTextNode(text));
 }

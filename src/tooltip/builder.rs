@@ -13,6 +13,11 @@ pub struct TooltipWidgetBuilder<'a, 'w, 's> {
     content_entity: Option<Entity>,
 }
 
+pub struct TooltipWidgetEntities {
+    pub root: Entity,
+    pub content: Option<Entity>,
+}
+
 impl Default for TooltipWidgetBuilder<'_, '_, '_> {
     fn default() -> Self {
         Self::new()
@@ -64,16 +69,19 @@ impl<'a, 'w, 's> TooltipWidgetBuilder<'a, 'w, 's> {
 
     /// Spawns the entity and returns the EntityCommands for the root node.
     /// Using the builder again after calling this will panic.
-    pub fn spawn(&mut self, commands: &'a mut Commands<'w, 's>) -> Entity {
-        let root_entity = commands
+    pub fn spawn(&mut self, commands: &'a mut Commands<'w, 's>) -> TooltipWidgetEntities {
+        let root = commands
             .spawn_bundle(self.root.bundle.take().unwrap())
             .run_entity_commands(&self.root.commands_runners)
             .id();
 
         if let Some(content) = self.content_entity {
-            commands.entity(root_entity).add_child(content);
+            commands.entity(root).add_child(content);
         }
 
-        root_entity
+        TooltipWidgetEntities {
+            root,
+            content: self.content_entity,
+        }
     }
 }

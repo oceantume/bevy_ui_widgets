@@ -35,7 +35,7 @@ pub(crate) fn slider_tooltip(
             .spawn(&mut commands);
 
         commands
-            .entity(tooltip)
+            .entity(tooltip.root)
             .insert(UiColor(slider_tooltip.color))
             .insert(slider_tooltip.corner_radius)
             .insert(SliderTooltipNode)

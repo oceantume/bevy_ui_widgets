@@ -60,7 +60,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             color: Color::NONE.into(),
             ..default()
         })
-        .push_children(&[text, slider])
+        .push_children(&[text, slider.root])
         .id();
 
     let content = commands
@@ -148,7 +148,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         .spawn(&mut commands);
 
     commands.entity(content).insert(Content {
-        frame_entity: frame,
+        frame_entity: frame.root,
     });
 }
 
