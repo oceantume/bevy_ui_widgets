@@ -14,9 +14,9 @@ pub struct TooltipPlugin;
 
 impl Plugin for TooltipPlugin {
     fn build(&self, app: &mut App) {
-        app //.add_system(tooltip_init_system)
-            .add_system(position_update_system)
-            .add_system(position_update_cursor_system)
+        app
+            .add_system_to_stage(CoreStage::PreUpdate, position_update_system)
+            .add_system_to_stage(CoreStage::PreUpdate, position_update_cursor_system)
             .add_system(update_text);
     }
 }
