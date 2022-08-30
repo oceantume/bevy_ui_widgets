@@ -14,6 +14,7 @@ bevy_text = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-
 bevy_transform = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
 bevy_ui = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
 bevy_utils = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
+bevy_sprite = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
 bevy_window = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
 
 smallvec = "1.8.0"

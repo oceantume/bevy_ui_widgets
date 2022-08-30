@@ -5,6 +5,7 @@ use bevy_app::{PluginGroup, PluginGroupBuilder};
 pub mod components;
 pub mod frame;
 pub mod slider;
+pub mod text;
 pub mod tooltip;
 pub mod utils;
 
@@ -15,6 +16,7 @@ pub struct AllWidgetsPlugins;
 impl PluginGroup for AllWidgetsPlugins {
     fn build(&mut self, group: &mut PluginGroupBuilder) {
         group.add(frame::FramePlugin);
+        group.add(text::TextInputPlugin);
         group.add(tooltip::TooltipPlugin);
         group.add(slider::SliderPlugin);
         group.add(components::grab::GrabComponentsPlugin);

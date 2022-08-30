@@ -281,7 +281,7 @@ source = "git+https://github.com/oceantume/bevy?branch=ui-nodes-new-visual-featu
 dependencies = [
  "bevy-crevice-derive",
  "bytemuck",
- "glam",
+ "glam 0.20.2",
  "mint",
 ]
 
@@ -445,7 +445,7 @@ version = "0.6.0"
 source = "git+https://github.com/oceantume/bevy?branch=ui-nodes-new-visual-features#26b7eb6098dada1bfe16fdf4b575a83e204755e6"
 dependencies = [
  "bevy_reflect",
- "glam",
+ "glam 0.20.2",
 ]
 
 [[package]]
@@ -477,7 +477,7 @@ dependencies = [
  "bevy_utils",
  "downcast-rs",
  "erased-serde",
- "glam",
+ "glam 0.20.2",
  "parking_lot",
  "serde",
  "smallvec",
@@ -660,6 +660,7 @@ dependencies = [
  "bevy_ecs",
  "bevy_math",
  "bevy_render",
+ "bevy_sprite",
  "bevy_text",
  "bevy_transform",
  "bevy_ui",
@@ -1387,6 +1388,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "glam"
+version = "0.21.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "518faa5064866338b013ff9b2350dc318e14cc4fcd6cb8206d7e7c9886c98815"
+
+[[package]]
 name = "glob"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1526,12 +1533,12 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "hexasphere"
-version = "7.0.0"
+version = "7.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04ab9d20ba513ff1582a7d885e91839f62cf28bef7c56b1b0428ca787315979b"
+checksum = "9652f2ed7ee9c6374a061039f60fc6e25d7adac7fa10f83365669af3b24b0bf0"
 dependencies = [
- "glam",
- "lazy_static",
+ "glam 0.21.3",
+ "once_cell",
 ]
 
 [[package]]
