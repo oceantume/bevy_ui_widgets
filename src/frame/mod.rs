@@ -1,6 +1,5 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
-use bevy_math::prelude::*;
 use bevy_ui::prelude::*;
 use bevy_utils::prelude::*;
 
@@ -49,7 +48,7 @@ fn move_frame(
                 Val::Px(y) => y,
                 _ => 0.0,
             };
-            style.position = Rect {
+            style.position = UiRect {
                 left: Val::Px(x + offset.x),
                 top: Val::Px(y - offset.y),
                 ..default()

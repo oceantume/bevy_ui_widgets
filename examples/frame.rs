@@ -18,22 +18,17 @@ fn main() {
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    // ui camera
-    commands.spawn_bundle(UiCameraBundle::default());
+    commands.spawn_bundle(Camera2dBundle::default());
 
     let text = commands
         .spawn_bundle(TextBundle {
             style: Style { ..default() },
-            text: Text::with_section(
+            text: Text::from_section(
                 "Slider:",
                 TextStyle {
                     font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                     font_size: 18.0,
                     color: Color::rgb(0.9, 0.9, 0.9),
-                },
-                TextAlignment {
-                    horizontal: HorizontalAlign::Left,
-                    vertical: VerticalAlign::Center,
                 },
             ),
             ..default()
@@ -70,7 +65,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 flex_direction: FlexDirection::ColumnReverse,
                 align_items: AlignItems::Stretch,
                 //justify_content: JustifyContent::Center,
-                margin: Rect::all(Val::Px(5.0)),
+                margin: UiRect::all(Val::Px(5.0)),
                 ..default()
             },
             color: Color::NONE.into(),
@@ -82,7 +77,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let frame = FrameWidgetBuilder::new()
         .root_bundle(|bundle| NodeBundle {
             style: Style {
-                position: Rect {
+                position: UiRect {
                     left: Val::Px(20.),
                     top: Val::Px(20.),
                     ..default()
@@ -99,14 +94,13 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..bundle
         })
         .title_text_bundle(|bundle| TextBundle {
-            text: Text::with_section(
+            text: Text::from_section(
                 "Hello, My Frame!",
                 TextStyle {
                     font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                     font_size: 16.0,
                     color: Color::rgb(0.9, 0.9, 0.9),
                 },
-                default(),
             ),
             ..bundle
         })
@@ -124,14 +118,13 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             let text = commands
                 .commands()
                 .spawn_bundle(TextBundle {
-                    text: Text::with_section(
+                    text: Text::from_section(
                         "-",
                         TextStyle {
                             font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                             font_size: 16.0,
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
-                        default(),
                     ),
                     ..default()
                 })

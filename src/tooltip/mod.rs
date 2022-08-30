@@ -23,13 +23,13 @@ impl Plugin for TooltipPlugin {
 }
 
 /// Marker component present on all tooltips.
-#[derive(Component, Default)]
+#[derive(Component, Default, Debug)]
 pub struct Tooltip;
 
 /// Describes the positioning of the tooltip.
 ///
 /// TODO: Add uinode-relative positioning (using Entity + Node + ? )
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub enum TooltipPosition {
     /// Tooltip follows the cursor
     FollowCursor,
@@ -38,7 +38,7 @@ pub enum TooltipPosition {
     /// Uses absolute positioning on the screen
     Absolute(Vec2),
     /// Raw rect. This is the same as using Manual and then setting style.rect
-    Rect(Rect<Val>),
+    Rect(UiRect<Val>),
     /// Disables automatic positioning of the tooltip node.
     Manual,
 }
@@ -51,7 +51,7 @@ impl Default for TooltipPosition {
 
 /// Describes the alignment of the tooltip relative to its position.
 /// This will be ignored when using a Rect position.
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub enum TooltipAlign {
     Bottom,
     //BottomLeft,
@@ -97,14 +97,14 @@ fn position_update_system(
             Changed<TooltipAlign>,
         )>,
     >,
-    node_query: Query<(&Node, &GlobalTransform)>,
+    //node_query: Query<(&Node, &GlobalTransform)>,
 ) {
     for (position, _, mut style) in tooltip_q.iter_mut() {
         // TODO: handle TooltipAlign (we essentially change the top, left, right, bottom values accordingly)
         // TODO: handle collision with screen edges. we could probably use an invisible global node to get edges instead of Res<Window>.
         match position {
             TooltipPosition::Absolute(pos) => {
-                style.position = Rect {
+                style.position = UiRect {
                     top: Val::Px(pos.y),
                     left: Val::Px(pos.x),
                     ..default()
@@ -157,7 +157,7 @@ fn position_update_node_system(
                 let point = calculate_node_point(
                     align,
                     &other_node.size,
-                    &other_transform.translation.truncate(),
+                    &other_transform.translation().truncate(),
                 );
                 let rect = calculate_tooltip_rect(align, &node.size, &point, 2.0);
                 if style.position != rect {
@@ -186,24 +186,24 @@ fn calculate_tooltip_rect(
     tooltip_size: &Vec2,
     point: &Vec2,
     offset: f32,
-) -> Rect<Val> {
+) -> UiRect<Val> {
     match align {
-        TooltipAlign::Bottom => Rect {
+        TooltipAlign::Bottom => UiRect {
             bottom: Val::Px(point.y - tooltip_size.y - offset),
             left: Val::Px(point.x - (tooltip_size.x / 2.0)),
             ..default()
         },
-        TooltipAlign::Left => Rect {
+        TooltipAlign::Left => UiRect {
             left: Val::Px(point.x - tooltip_size.x - offset),
             bottom: Val::Px(point.y - (tooltip_size.y / 2.0)),
             ..default()
         },
-        TooltipAlign::Right => Rect {
+        TooltipAlign::Right => UiRect {
             left: Val::Px(point.x + offset),
             bottom: Val::Px(point.y - (tooltip_size.y / 2.0)),
             ..default()
         },
-        TooltipAlign::Top => Rect {
+        TooltipAlign::Top => UiRect {
             bottom: Val::Px(point.y + offset),
             left: Val::Px(point.x - (tooltip_size.x / 2.0)),
             ..default()
@@ -224,7 +224,7 @@ fn update_text(
 
 /// A tooltip is a text container with special positioning rules that displays on top of other UI elements.
 /// The recommended way to use tooltips for now is to spawn them "standalone" and not as a child of another UI node.
-#[derive(Bundle)]
+#[derive(Bundle, Debug)]
 pub struct TooltipBundle {
     pub tooltip: Tooltip,
     pub position: TooltipPosition,
@@ -245,10 +245,8 @@ pub struct TooltipBundle {
     pub global_transform: GlobalTransform,
     /// Describes the visibility properties of the node
     pub visibility: Visibility,
-    /// Describes the radius of corners for the node
-    pub corner_radius: CornerRadius,
-    /// Describes the visual properties of the node's border
-    pub border: Border,
+    /// Algorithmically-computed indication of whether an entity is visible and should be extracted for rendering
+    pub computed_visibility: ComputedVisibility,
 }
 
 impl Default for TooltipBundle {
@@ -265,8 +263,7 @@ impl Default for TooltipBundle {
             transform: default(),
             global_transform: default(),
             visibility: default(),
-            corner_radius: default(),
-            border: default(),
+            computed_visibility: default(),
         }
     }
 }
@@ -275,7 +272,7 @@ impl TooltipBundle {
     pub fn default_style() -> Style {
         Style {
             position_type: PositionType::Absolute,
-            border: Rect::all(Val::Px(2.0)),
+            border: UiRect::all(Val::Px(2.0)),
             align_items: AlignItems::Center,
             ..default()
         }

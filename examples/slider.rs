@@ -10,7 +10,7 @@ fn main() {
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn_bundle(UiCameraBundle::default());
+    commands.spawn_bundle(Camera2dBundle::default());
 
     let slider = SliderWidgetBuilder::new()
         .root_bundle(|bundle| SliderBundle {
@@ -22,18 +22,10 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             },
             style: Style {
                 size: Size::new(Val::Px(150.0), Val::Px(65.0)),
-                margin: Rect::all(Val::Auto),
+                margin: UiRect::all(Val::Auto),
                 ..bundle.style
             },
             color: Color::NONE.into(),
-            ..bundle
-        })
-        .track_bundle(|bundle| NodeBundle {
-            corner_radius: CornerRadius::all(5.),
-            ..bundle
-        })
-        .thumb_bundle(|bundle| NodeBundle {
-            corner_radius: CornerRadius::all(4.),
             ..bundle
         })
         .spawn(&mut commands);
@@ -45,6 +37,5 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             color: Color::rgb(0.9, 0.9, 0.9),
         },
         color: Color::rgb(0.15, 0.15, 0.15),
-        corner_radius: CornerRadius::all(2.0),
     });
 }

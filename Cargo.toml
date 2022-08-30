@@ -5,22 +5,23 @@ edition = "2021"
 
 [dependencies]
 # TODO: Change these when merged
-bevy_app = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
-bevy_asset = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
-bevy_ecs = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
-bevy_math = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
-bevy_render = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
-bevy_text = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
-bevy_transform = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
-bevy_ui = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
-bevy_utils = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
-bevy_window = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
+bevy_app = "0.8.1"
+bevy_asset = "0.8.1"
+bevy_ecs = "0.8.1"
+bevy_hierarchy = "0.8.1"
+bevy_math = "0.8.1"
+bevy_render = "0.8.1"
+bevy_text = "0.8.1"
+bevy_transform = "0.8.1"
+bevy_ui = "0.8.1"
+bevy_utils = "0.8.1"
+bevy_window = "0.8.1"
 
 smallvec = "1.8.0"
 
 [dev-dependencies]
 # TODO: Change this when merged
-bevy = { git = "https://github.com/oceantume/bevy", branch = "ui-nodes-new-visual-features" }
+bevy = "0.8.1"
 
 [[example]]
 name = "frame"

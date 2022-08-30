@@ -1,7 +1,6 @@
 use bevy_ecs::{prelude::*, system::EntityCommands};
-use bevy_math::prelude::*;
+use bevy_hierarchy::prelude::*;
 use bevy_render::prelude::*;
-use bevy_transform::prelude::*;
 use bevy_ui::prelude::*;
 use bevy_utils::*;
 
@@ -38,8 +37,8 @@ impl<'a, 'w, 's> FrameWidgetBuilder<'a, 'w, 's> {
             root: WidgetBuilderEntity::new(Some(NodeBundle {
                 style: Style {
                     position_type: PositionType::Absolute,
-                    position: Rect::all(Val::Px(0.0)),
-                    border: Rect::all(Val::Px(2.0)),
+                    position: UiRect::all(Val::Px(0.0)),
+                    border: UiRect::all(Val::Px(2.0)),
                     align_items: AlignItems::Stretch,
                     flex_direction: FlexDirection::Column,
                     justify_content: JustifyContent::FlexEnd,
@@ -62,7 +61,7 @@ impl<'a, 'w, 's> FrameWidgetBuilder<'a, 'w, 's> {
             })),
             title_text: WidgetBuilderEntity::new(Some(TextBundle {
                 style: Style {
-                    margin: Rect::all(Val::Px(5.0)),
+                    margin: UiRect::all(Val::Px(5.0)),
                     ..default()
                 },
                 ..default()
@@ -183,7 +182,7 @@ impl<'a, 'w, 's> FrameWidgetBuilder<'a, 'w, 's> {
             commands.entity(root).add_child(content);
         }
 
-        commands.entity(root).push_children(&[title_bar]);
+        commands.entity(root).add_child(title_bar);
         commands
             .entity(title_bar)
             .push_children(&[title_text, close_button]);

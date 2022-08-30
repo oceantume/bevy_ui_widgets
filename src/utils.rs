@@ -10,7 +10,7 @@ pub fn get_uinode_clipped_rect(
     node: &Node,
     clip: Option<&CalculatedClip>,
 ) -> (Vec2, Vec2) {
-    let position = global_transform.translation;
+    let position = global_transform.translation();
     let ui_position = position.truncate();
     let extents = node.size / 2.0;
     let mut min = ui_position - extents;

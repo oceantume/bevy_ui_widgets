@@ -1,6 +1,6 @@
 use bevy_ecs::prelude::*;
+use bevy_hierarchy::prelude::*;
 use bevy_text::prelude::*;
-use bevy_transform::prelude::*;
 use bevy_ui::prelude::*;
 
 use super::*;
@@ -16,7 +16,7 @@ pub(crate) fn slider_tooltip(
     for (root, slider_tooltip) in added_slider_q.iter() {
         let text = commands
             .spawn_bundle(TextBundle {
-                text: Text::with_section("0", slider_tooltip.text_style.clone(), default()),
+                text: Text::from_section("0", slider_tooltip.text_style.clone()),
                 ..default()
             })
             .insert(SliderTooltipTextNode)
@@ -40,7 +40,6 @@ pub(crate) fn slider_tooltip(
         commands
             .entity(tooltip.root)
             .insert(UiColor(slider_tooltip.color))
-            .insert(slider_tooltip.corner_radius)
             .insert(SliderTooltipNode)
             .insert(WidgetRoot(root));
     }
@@ -61,16 +60,14 @@ pub(crate) fn slider_tooltip_update(
         &WidgetRoot,
         &TooltipUiNodes,
         &mut UiColor,
-        &mut CornerRadius,
     )>,
     mut tooltip_text_q: Query<&mut Text, With<TooltipTextUiNode>>,
 ) {
-    for (root, nodes, mut color, mut corner_radius) in tooltip_q.iter_mut() {
+    for (root, nodes, mut color) in tooltip_q.iter_mut() {
         if let Ok(mut text) = tooltip_text_q.get_mut(nodes.text) {
             if let Ok(slider_tooltip) = slider_q.get(root.0) {
                 text.sections[0].style = slider_tooltip.text_style.clone();
                 color.0 = slider_tooltip.color;
-                *corner_radius = slider_tooltip.corner_radius;
             }
         }
     }

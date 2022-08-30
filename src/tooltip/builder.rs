@@ -1,6 +1,5 @@
 use bevy_ecs::{prelude::*, system::EntityCommands};
-use bevy_math::prelude::*;
-use bevy_transform::prelude::*;
+use bevy_hierarchy::prelude::*;
 use bevy_ui::prelude::*;
 use bevy_utils::prelude::*;
 
@@ -31,7 +30,7 @@ impl<'a, 'w, 's> TooltipWidgetBuilder<'a, 'w, 's> {
             root: WidgetBuilderEntity::new(Some(TooltipBundle {
                 style: Style {
                     position_type: PositionType::Absolute,
-                    border: Rect::all(Val::Px(2.0)),
+                    border: UiRect::all(Val::Px(2.0)),
                     align_items: AlignItems::Center,
                     ..default()
                 },

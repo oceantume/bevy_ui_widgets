@@ -1,7 +1,6 @@
 use bevy_ecs::{prelude::*, system::EntityCommands};
-use bevy_math::prelude::*;
+use bevy_hierarchy::prelude::*;
 use bevy_render::prelude::*;
-use bevy_transform::hierarchy::BuildChildren;
 use bevy_ui::{entity::*, *};
 use bevy_utils::*;
 
@@ -51,10 +50,6 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
                     ..default()
                 },
                 color: Color::rgb(0.25, 0.25, 0.25).into(),
-                border: Border {
-                    width: 2.,
-                    color: Color::rgb(0.15, 0.15, 0.15),
-                },
                 ..default()
             })),
             thumb: WidgetBuilderEntity::new(Some(NodeBundle {
@@ -67,10 +62,6 @@ impl<'a, 'w, 's> SliderWidgetBuilder<'a, 'w, 's> {
                     ..default()
                 },
                 color: Color::rgb(0.25, 0.25, 0.25).into(),
-                border: Border {
-                    width: 2.,
-                    color: Color::rgb(0.15, 0.15, 0.15),
-                },
                 ..default()
             })),
         }

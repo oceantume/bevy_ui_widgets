@@ -19,14 +19,13 @@ const TOGGLE_OFF_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
 const TOGGLE_ON_COLOR: Color = Color::rgb(0.35, 0.75, 0.35);
 
 fn setup(mut commands: Commands) {
-    // ui camera
-    commands.spawn_bundle(UiCameraBundle::default());
+    commands.spawn_bundle(Camera2dBundle::default());
     commands
         .spawn_bundle(ButtonBundle {
             style: Style {
                 size: Size::new(Val::Px(150.0), Val::Px(65.0)),
                 // center button
-                margin: Rect::all(Val::Auto),
+                margin: UiRect::all(Val::Auto),
                 // horizontally center child text
                 justify_content: JustifyContent::Center,
                 // vertically center child text

@@ -1,6 +1,5 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
-use bevy_math::prelude::*;
 use bevy_render::prelude::*;
 use bevy_text::prelude::*;
 use bevy_transform::prelude::*;
@@ -58,7 +57,6 @@ impl Default for Slider {
 pub struct SliderTooltip {
     pub text_style: TextStyle,
     pub color: Color,
-    pub corner_radius: CornerRadius,
 }
 
 /// Marker component for Slider's thumb
@@ -120,7 +118,7 @@ fn slider_thumb_update(
                 };
                 assert!(slider.step > 0 && slider.step <= slider.max - slider.min);
                 let x = (slider.value as f32 * (max_x - min_x)) / (slider.max - slider.min) as f32;
-                thumb_style.position = Rect {
+                thumb_style.position = UiRect {
                     left: Val::Px(x),
                     ..default()
                 };
@@ -194,10 +192,8 @@ pub struct SliderBundle {
     pub global_transform: GlobalTransform,
     /// Describes the visibility properties of the node
     pub visibility: Visibility,
-    /// Describes the radius of corners for the node
-    pub corner_radius: CornerRadius,
-    /// Describes the visual properties of the node's border
-    pub border: Border,
+    /// Algorithmically-computed indication of whether an entity is visible and should be extracted for rendering
+    pub computed_visibility: ComputedVisibility,
 }
 
 impl Default for SliderBundle {
@@ -212,8 +208,7 @@ impl Default for SliderBundle {
             transform: default(),
             global_transform: default(),
             visibility: default(),
-            corner_radius: default(),
-            border: default(),
+            computed_visibility: default(),
         }
     }
 }

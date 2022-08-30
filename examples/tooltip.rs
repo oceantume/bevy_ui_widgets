@@ -16,19 +16,17 @@ struct MyTooltipTextNode(Entity);
 struct Counter(pub u32);
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    // ui camera
-    commands.spawn_bundle(UiCameraBundle::default());
+    commands.spawn_bundle(Camera2dBundle::default());
 
     let text = commands
         .spawn_bundle(TextBundle {
-            text: Text::with_section(
+            text: Text::from_section(
                 "0",
                 TextStyle {
                     font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                     font_size: 25.0,
                     color: Color::rgb(0.9, 0.9, 0.9),
                 },
-                default(),
             ),
             ..default()
         })
