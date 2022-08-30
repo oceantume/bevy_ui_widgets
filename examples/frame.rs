@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 use bevy_ui_widgets::{
     components::toggle::Toggle,
-    frame::*,
-    slider::{SliderBundle, SliderWidgetBuilder},
+    widgets::frame::*,
+    widgets::slider::{SliderBundle, SliderWidgetBuilder},
     AllWidgetsPlugins,
 };
 

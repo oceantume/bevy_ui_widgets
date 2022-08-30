@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_ui_widgets::{slider::*, AllWidgetsPlugins};
+use bevy_ui_widgets::{widgets::slider::*, AllWidgetsPlugins};
 
 fn main() {
     App::new()

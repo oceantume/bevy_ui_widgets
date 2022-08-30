@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_ui_widgets::{tooltip::*, AllWidgetsPlugins};
+use bevy_ui_widgets::{widgets::tooltip::*, AllWidgetsPlugins};
 
 /// A simple tooltip that updates every frame.
 fn main() {

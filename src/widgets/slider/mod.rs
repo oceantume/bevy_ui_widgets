@@ -12,7 +12,7 @@ mod tooltip;
 pub use builder::*;
 use tooltip::*;
 
-use crate::{components::grab::Grabbed, tooltip::*, utils::*};
+use crate::{components::grab::Grabbed, widgets::tooltip::*, utils::*};
 
 pub struct SliderPlugin;
 
