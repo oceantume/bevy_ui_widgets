@@ -11,11 +11,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/setup-node@v3.4.1
     - uses: jetli/wasm-bindgen-action@v0.1.0
     - uses: actions/checkout@v3
     - name: Build
       run: |
         rustup target add wasm32-unknown-unknown
         cargo build --release --target wasm32-unknown-unknown --examples
-        wasm-bindgen --out-dir ./wasm-out --no-typescript --target web target/wasm32-unknown-unknown/release/examples/slider.wasm
-        
+        for f in target/wasm32-unknown-unknown/release/examples/*.wasm
+        begin
+          echo "$f"
+          if [[ ! $f =~ ".+-.+\\.wasm$" ]]
+          then
+            echo "inside: $f"
+            wasm-bindgen --out-dir ./wasm-out --no-typescript --target web $f
+          fi
+        end
