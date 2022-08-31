@@ -32,17 +32,13 @@ name = "tooltip"
 path = "examples/tooltip.rs"
 
 [[example]]
-name = "tooltip_custom"
-path = "examples/tooltip_custom.rs"
-
-[[example]]
 name = "slider"
 path = "examples/slider.rs"
 
 [[example]]
-name = "interaction"
-path = "examples/interaction.rs"
-
-[[example]]
 name = "toggle"
 path = "examples/toggle.rs"
+
+[[example]]
+name = "theming"
+path = "examples/theming.rs"
