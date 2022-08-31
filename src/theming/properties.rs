@@ -19,50 +19,22 @@ where
     fn as_any(&self) -> &dyn Any;
 }
 
-pub struct TextColorProperty(pub Color);
+macro_rules! define_property {
+    ($type: ident, $inner_type: ty, $name_str: expr) => {
+        pub struct $type(pub $inner_type);
 
-impl ThemePropertyName for TextColorProperty {
-    const PROPERTY_NAME: &'static str = "color";
+        impl ThemePropertyName for $type {
+            const PROPERTY_NAME: &'static str = $name_str;
+        }
+
+        impl ThemeProperty for $type {
+            fn as_any(&self) -> &dyn Any {
+                self
+            }
+        }
+    };
 }
 
-impl ThemeProperty for TextColorProperty {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-}
-
-pub struct ColorProperty(pub Color);
-
-impl ThemePropertyName for ColorProperty {
-    const PROPERTY_NAME: &'static str = "background-color";
-}
-
-impl ThemeProperty for ColorProperty {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-}
-
-pub struct MarginProperty(pub UiRect<Val>);
-
-impl ThemePropertyName for MarginProperty {
-    const PROPERTY_NAME: &'static str = "margin";
-}
-
-impl ThemeProperty for MarginProperty {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-}
-
-pub struct PaddingProperty(pub UiRect<Val>);
-
-impl ThemePropertyName for PaddingProperty {
-    const PROPERTY_NAME: &'static str = "padding";
-}
-
-impl ThemeProperty for PaddingProperty {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-}
+define_property!(TextColorProperty, Color, "color");
+define_property!(ColorProperty, Color, "background-color");
+define_property!(PaddingProperty, UiRect<Val>, "padding");
