@@ -14,7 +14,7 @@ jobs:
     - uses: jetli/wasm-bindgen-action@v0.1.0
     - uses: actions/checkout@v3
     - name: Build
-      run:
+      run: |
         cargo build --release --target wasm32-unknown-unknown --examples
         wasm-bindgen --out-dir ./wasm-out --no-typescript --target web target/wasm32-unknown-unknown/release/examples/slider.wasm
         
