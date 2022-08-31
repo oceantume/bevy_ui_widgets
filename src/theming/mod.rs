@@ -53,11 +53,17 @@ fn update_color(theme: Option<Res<ThemeManager>>, mut query: Query<(&ThemeKey, &
 fn update_style(theme: Option<Res<ThemeManager>>, mut query: Query<(&ThemeKey, &mut Style)>) {
     if let Some(theme) = theme.filter(|style| style.is_added() || style.is_changed()) {
         for (key, mut style) in query.iter_mut() {
-            if let Some(property) = theme.get_property::<PaddingProperty>(&key.0) {
-                if style.padding != property.0 {
-                    style.padding = property.0;
-                }
+            macro_rules! change_style {
+                ($a: ty, $b: expr) => {
+                    if let Some(property) = theme.get_property::<$a>(&key.0) {
+                        if $b != property.0 {
+                            $b = property.0;
+                        }
+                    }
+                };
             }
+
+            change_style!(PaddingProperty, style.padding);
         }
     }
 }
