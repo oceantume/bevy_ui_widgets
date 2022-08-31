@@ -2,7 +2,7 @@ name: Deploy Examples
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "workflow-tests" ]
 
 env:
   CARGO_TERM_COLOR: always
