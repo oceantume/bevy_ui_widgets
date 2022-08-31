@@ -1,9 +1,5 @@
 use bevy::prelude::*;
-use bevy_ui_widgets::{
-    components::toggle::Toggle,
-    theming::{ColorProperty, PaddingProperty, TextColorProperty, ThemeKey, ThemeManager},
-    *,
-};
+use bevy_ui_widgets::{components::toggle::Toggle, theming::*, *};
 
 fn main() {
     App::new()
@@ -18,7 +14,10 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut theme: ResM
     commands.spawn_bundle(Camera2dBundle::default());
 
     // static theme variables
-    theme.set_property("button", PaddingProperty(UiRect::all(Val::Px(10.0))));
+    theme
+        .set_property("button", PaddingProperty(UiRect::all(Val::Px(10.0))))
+        .set_property("root", JustifyContentProperty(JustifyContent::Center))
+        .set_property("root", FlexDirectionProperty(FlexDirection::ColumnReverse));
 
     let root = commands
         .spawn_bundle(NodeBundle {
@@ -71,7 +70,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut theme: ResM
 
 /// Changes some theme properties when the button is toggled.
 /// This basically shows how a light/dark mode could be achieved.
-/// 
+///
 /// TODO: try to implement this via swapping pre-filled themes and using insert.
 fn toggle_theme(mut query: Query<&Toggle, Changed<Toggle>>, mut theme: ResMut<ThemeManager>) {
     for toggle in query.iter_mut() {

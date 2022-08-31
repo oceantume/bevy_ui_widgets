@@ -38,3 +38,6 @@ macro_rules! define_property {
 define_property!(TextColorProperty, Color, "color");
 define_property!(ColorProperty, Color, "background-color");
 define_property!(PaddingProperty, UiRect<Val>, "padding");
+define_property!(MarginProperty, UiRect<Val>, "margin");
+define_property!(JustifyContentProperty, JustifyContent, "justify-content");
+define_property!(FlexDirectionProperty, FlexDirection, "flex-direction");

@@ -64,6 +64,9 @@ fn update_style(theme: Option<Res<ThemeManager>>, mut query: Query<(&ThemeKey, &
             }
 
             change_style!(PaddingProperty, style.padding);
+            change_style!(MarginProperty, style.margin);
+            change_style!(JustifyContentProperty, style.justify_content);
+            change_style!(FlexDirectionProperty, style.flex_direction);
         }
     }
 }
