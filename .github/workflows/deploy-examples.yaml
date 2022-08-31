@@ -21,9 +21,9 @@ jobs:
         echo first
         find './target/wasm32-unknown-unknown/release/examples' -name '*.wasm' | xargs echo
         echo second
-        find './target/wasm32-unknown-unknown/release/examples' -name '[a-zA-Z_].wasm' | xargs echo #xargs wasm-bindgen --out-dir ./wasm-out --no-typescript --target web
+        find './target/wasm32-unknown-unknown/release/examples' -regex '[a-zA-Z_].wasm$' | xargs echo #xargs wasm-bindgen --out-dir ./wasm-out --no-typescript --target web
         echo third
-        find './target/wasm32-unknown-unknown/release/examples' -name '[a-zA-Z_].wasm' | xargs wasm-bindgen --out-dir ./wasm-out --no-typescript --target web
+        find './target/wasm32-unknown-unknown/release/examples' -regex '[a-zA-Z_].wasm' | xargs wasm-bindgen --out-dir ./wasm-out --no-typescript --target web
         
         #for f in find /path -iname '*.txt'
         #do
