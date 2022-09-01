@@ -1,0 +1,103 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Bevy UI Widgets</title>
+  <meta name="description" content="The documentation website for the bevy_ui_widgets library.">
+  <meta name="author" content="Oceantume">
+
+  <meta property="og:title" content="Bevy UI Widgets">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://oceantume.github.io/bevy_ui_widgets">
+  <meta property="og:description" content="The documentation website for the bevy_ui_widgets library.">
+  <!--<meta property="og:image" content="todo.png">-->
+
+  <!--
+  <link rel="icon" href="/favicon.ico">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  -->
+
+  <style>
+    .page:not(.page-current) {
+      display: none;
+    }
+
+    div[data-pagename=example] canvas {
+      background-color: black;
+      width: 600px;
+      height: 600px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a href="#">
+      <h1>
+        Bevy UI Widgets
+      </h1>
+    </a>
+  </header>
+
+  <div class="page" data-pagename="index">
+    <h2>Examples</h2>
+    Select an example:
+    <ul class="example-list">
+      <li><a href="#example:frame">frame</a></li><li><a href="#example:slider">slider</a></li><li><a href="#example:theming">theming</a></li><li><a href="#example:toggle">toggle</a></li><li><a href="#example:tooltip">tooltip</a></li>
+    </ul>
+  </div>
+
+  <div class="page" data-pagename="example">
+    <h2>Example</h2>
+    <canvas></canvas>
+  </div>
+
+  <script type="module">
+    const pageInitializers = {
+      'example': (exampleName) => {
+        const page = window.document.querySelector('.page[data-pagename=example]');
+
+        const title = page.querySelector('h2');
+        title.textContent = exampleName;
+
+        const canvas = page.querySelector('canvas');
+
+        import(`./examples/${exampleName}.js`)
+          .then((module) => console.log('mod: ', module))
+          .catch((err) => console.error(err));
+
+        // TODO: load our module.
+        // The idea is that they'll all be ready in /static/examples/{name.js} and {name.wasm}
+        //  or something similar.
+      }
+    }
+
+    const updateCurrentPage = () => {
+      const pageMatch = window.location.hash.match(/#([\w\d\-\_]+)(?::(.+))?/);
+      const pageName = (pageMatch && pageMatch[1]) || 'index';
+
+      for (const page of window.document.querySelectorAll(`.page`)) {
+        const isCurrent = page.getAttribute('data-pagename') === pageName;
+        const hasClass = page.classList.contains('page-current');
+
+        if (isCurrent && !hasClass) {
+          page.classList.add('page-current');
+        } else if (!isCurrent && hasClass) {
+          page.classList.remove('page-current');
+        }
+      }
+
+      pageInitializers[pageName] && pageInitializers[pageName](pageMatch[2]);
+    }
+
+    addEventListener('hashchange', updateCurrentPage);
+    updateCurrentPage();
+  </script>
+</body>
+
+</html>
