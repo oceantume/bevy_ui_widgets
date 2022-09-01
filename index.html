@@ -32,6 +32,11 @@
       width: 600px;
       height: 600px;
     }
+
+    /* don't render bevy's initial canvas that gets added to body. */
+    body > canvas {
+      display: none;
+    }
   </style>
 </head>
 
@@ -54,7 +59,6 @@
 
   <div class="page" data-pagename="example">
     <h2>Example</h2>
-    <canvas></canvas>
   </div>
 
   <script type="module">
@@ -68,8 +72,23 @@
         const canvas = page.querySelector('canvas');
 
         import(`./examples/${exampleName}.js`)
-          .then((module) => console.log('mod: ', module))
-          .catch((err) => console.error(err));
+          .then((module) => {
+            console.log('mod: ', module);
+            return module.default()
+          })
+          .catch((err) => {
+            const isSuccessError = err.message.match(
+              /^Using exceptions for control flow, don't mind me. This isn't actually an error!$/
+            )
+
+            if (!isSuccessError) {
+              throw err;
+            }
+          })
+          .then(() => {
+            page.appendChild(window.document.querySelector('body > canvas'));
+          })
+          .catch(console.error);
 
         // TODO: load our module.
         // The idea is that they'll all be ready in /static/examples/{name.js} and {name.wasm}
