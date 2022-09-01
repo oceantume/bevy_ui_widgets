@@ -11,11 +11,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/setup-node@v3.4.1
     - uses: jetli/wasm-bindgen-action@v0.1.0
     - uses: actions/checkout@v3
-    - name: Build
+    - name: Build examples
       run: |
         rustup target add wasm32-unknown-unknown
         cargo build --release --target wasm32-unknown-unknown --examples
-        wasm-bindgen --out-dir ./wasm-out --no-typescript --target web target/wasm32-unknown-unknown/release/examples/slider.wasm
-        
+        find './target/wasm32-unknown-unknown/release/examples' -regex '.*/[a-zA-Z_]+.wasm$' -exec 'xargs wasm-bindgen --out-dir ./wasm-out --no-typescript --target web {}'
+    - name: Build website
+      run: |
+       mkdir ./website/output
+       node ./website/build.js ./website/template ./website/dist ./wasm-out
+    - name: Deploy to gh-pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./website/dist/
