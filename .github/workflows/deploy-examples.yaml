@@ -22,7 +22,7 @@ jobs:
     - name: Build website
       run: |
        mkdir ./website/output
-       cp ./assets ./website/assets
+       cp -r ./assets ./website/assets
        mkdir ./website/dist
        node ./website/build.js ./website/template ./website/dist ./wasm-out
     - name: Deploy to gh-pages
