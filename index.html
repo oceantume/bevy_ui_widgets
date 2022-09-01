@@ -73,7 +73,6 @@
 
         import(`./examples/${exampleName}.js`)
           .then((module) => {
-            console.log('mod: ', module);
             return module.default()
           })
           .catch((err) => {
@@ -86,6 +85,7 @@
             }
           })
           .then(() => {
+            page.querySelectorAll('canvas').forEach((canvas) => canvas.remove());
             page.appendChild(window.document.querySelector('body > canvas'));
           })
           .catch(console.error);
