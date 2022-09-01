@@ -22,6 +22,7 @@ jobs:
     - name: Build website
       run: |
        mkdir ./website/output
+       cp ./assets ./website/assets
        node ./website/build.js ./website/template ./website/dist ./wasm-out
     - name: Deploy to gh-pages
       uses: peaceiris/actions-gh-pages@v3
