@@ -21,7 +21,9 @@ jobs:
         echo first
         find './target/wasm32-unknown-unknown/release/examples' -name '*.wasm' | xargs echo
         echo second
-        find './target/wasm32-unknown-unknown/release/examples' -regex '[a-zA-Z_]+.wasm$' | xargs echo #xargs wasm-bindgen --out-dir ./wasm-out --no-typescript --target web
+        find './target/wasm32-unknown-unknown/release/examples' -regex '.*/[a-zA-Z_]+.wasm$' | xargs echo
+        echo second and a half
+        find './target/wasm32-unknown-unknown/release/examples' -regextype sed -regex '.*/[a-zA-Z_]+.wasm$' | xargs echo
         echo third
         find './target/wasm32-unknown-unknown/release/examples' -regex '[a-zA-Z_]+.wasm$' | xargs wasm-bindgen --out-dir ./wasm-out --no-typescript --target web
         
