@@ -21,9 +21,8 @@ jobs:
         find './target/wasm32-unknown-unknown/release/examples' -regex '.*/[a-zA-Z_]+.wasm$' -exec xargs wasm-bindgen --out-dir ./wasm-out --no-typescript --target web {} \;
     - name: Build website
       run: |
-       mkdir ./website/output
-       cp -r ./assets ./website/assets
        mkdir ./website/dist
+       cp -r ./assets ./website/dist/assets
        node ./website/build.js ./website/template ./website/dist ./wasm-out
     - name: Deploy to gh-pages
       uses: peaceiris/actions-gh-pages@v3
