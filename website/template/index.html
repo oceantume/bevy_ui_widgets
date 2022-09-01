@@ -65,11 +65,10 @@
     const pageInitializers = {
       'example': (exampleName) => {
         const page = window.document.querySelector('.page[data-pagename=example]');
+        page.querySelectorAll('canvas').forEach((canvas) => canvas.remove());
 
         const title = page.querySelector('h2');
         title.textContent = exampleName;
-
-        const canvas = page.querySelector('canvas');
 
         import(`./examples/${exampleName}.js`)
           .then((module) => {
@@ -85,14 +84,9 @@
             }
           })
           .then(() => {
-            page.querySelectorAll('canvas').forEach((canvas) => canvas.remove());
             page.appendChild(window.document.querySelector('body > canvas'));
           })
           .catch(console.error);
-
-        // TODO: load our module.
-        // The idea is that they'll all be ready in /static/examples/{name.js} and {name.wasm}
-        //  or something similar.
       }
     }
 
