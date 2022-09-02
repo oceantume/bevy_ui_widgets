@@ -15,25 +15,21 @@ fn setup(mut commands: Commands, mut theme: ResMut<ThemeManager>) {
 
     // static theme variables
     theme
-        .set_property("button", PaddingProperty(UiRect::all(Val::Px(10.0))))
-        .set_property("root", JustifyContentProperty(JustifyContent::Center))
         .set_property("root", FlexDirectionProperty(FlexDirection::ColumnReverse))
+        .set_property("root", JustifyContentProperty(JustifyContent::Center))
+        .set_property("root", AlignItemsProperty(AlignItems::Center))
+        .set_property("root", SizeProperty(Size::new(Val::Percent(100.0), Val::Percent(100.0))))
+        .set_property("root", ColorProperty(Color::WHITE))
+        .set_property("button", JustifyContentProperty(JustifyContent::Center))
+        .set_property("button", AlignItemsProperty(AlignItems::Center))
+        .set_property("button", PaddingProperty(UiRect::all(Val::Px(10.0))))
+        .set_property("button", ColorProperty(Color::rgb(0.15, 0.15, 0.15)))
         .set_property("text", TextFontPathProperty("fonts/FiraSans-Bold.ttf".into()))
         .set_property("text", TextFontSizeProperty(20.0))
         .set_property("text", TextColorProperty(Color::RED));
 
     let root = commands
-        .spawn_bundle(NodeBundle {
-            style: Style {
-                flex_direction: FlexDirection::ColumnReverse,
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                ..default()
-            },
-            color: Color::WHITE.into(),
-            ..default()
-        })
+        .spawn_bundle(NodeBundle::default())
         .insert(ThemeKey("root".into()))
         .id();
 
@@ -42,23 +38,11 @@ fn setup(mut commands: Commands, mut theme: ResMut<ThemeManager>) {
             "Click here to toggle theme",
             default(),
         ))
-        .insert(UiColor(Color::rgb(0.5, 0.5, 0.0)))
         .insert(ThemeKey("text".into()))
         .id();
 
     let button = commands
-        .spawn_bundle(ButtonBundle {
-            style: Style {
-                //size: Size::new(Val::Px(150.0), Val::Px(65.0)),
-                // horizontally center child text
-                justify_content: JustifyContent::Center,
-                // vertically center child text
-                align_items: AlignItems::Center,
-                ..default()
-            },
-            color: Color::rgb(0.15, 0.15, 0.15).into(),
-            ..default()
-        })
+        .spawn_bundle(ButtonBundle::default())
         .insert(ThemeKey("button".into()))
         .insert(Toggle::default())
         .add_child(text)
