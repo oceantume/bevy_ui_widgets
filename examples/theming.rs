@@ -10,14 +10,17 @@ fn main() {
         .run();
 }
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut theme: ResMut<ThemeManager>) {
+fn setup(mut commands: Commands, mut theme: ResMut<ThemeManager>) {
     commands.spawn_bundle(Camera2dBundle::default());
 
     // static theme variables
     theme
         .set_property("button", PaddingProperty(UiRect::all(Val::Px(10.0))))
         .set_property("root", JustifyContentProperty(JustifyContent::Center))
-        .set_property("root", FlexDirectionProperty(FlexDirection::ColumnReverse));
+        .set_property("root", FlexDirectionProperty(FlexDirection::ColumnReverse))
+        .set_property("text", TextFontPathProperty("fonts/FiraSans-Bold.ttf".into()))
+        .set_property("text", TextFontSizeProperty(20.0))
+        .set_property("text", TextColorProperty(Color::RED));
 
     let root = commands
         .spawn_bundle(NodeBundle {
@@ -37,11 +40,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut theme: ResM
     let text = commands
         .spawn_bundle(TextBundle::from_section(
             "Click here to toggle theme",
-            TextStyle {
-                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                font_size: 20.0,
-                color: Color::RED,
-            },
+            default(),
         ))
         .insert(UiColor(Color::rgb(0.5, 0.5, 0.0)))
         .insert(ThemeKey("text".into()))
