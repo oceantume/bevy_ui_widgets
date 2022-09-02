@@ -1,0 +1,125 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Bevy UI Widgets</title>
+  <meta name="description" content="The documentation website for the bevy_ui_widgets library.">
+  <meta name="author" content="Oceantume">
+
+  <meta property="og:title" content="Bevy UI Widgets">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://oceantume.github.io/bevy_ui_widgets">
+  <meta property="og:description" content="The documentation website for the bevy_ui_widgets library.">
+  <!--<meta property="og:image" content="todo.png">-->
+
+  <!--
+  <link rel="icon" href="/favicon.ico">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  -->
+
+  <style>
+    .page:not(.page-current) {
+      display: none;
+    }
+
+    div[data-pagename=example] {
+      display: flex;
+      flex-direction: column;
+    }
+
+    div[data-pagename=example] canvas {
+      background-color: black;
+      width: 600px;
+      height: 600px;
+    }
+
+    /* don't render bevy's initial canvas that gets added to body. */
+    body > canvas {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a href="#">
+      <h1>
+        Bevy UI Widgets
+      </h1>
+    </a>
+  </header>
+
+  <div class="page" data-pagename="index">
+    <h2>Examples</h2>
+    Select an example:
+    <ul class="example-list">
+      {{examples}}
+    </ul>
+  </div>
+
+  <div class="page" data-pagename="example">
+    <h2>Example</h2>
+    <a id="example-code-link">View code</a>
+  </div>
+
+  <script type="module">
+    const pageInitializers = {
+      'example': (exampleName) => {
+        const page = window.document.querySelector('.page[data-pagename=example]');
+        page.querySelectorAll('canvas').forEach((canvas) => canvas.remove());
+
+        const title = page.querySelector('h2');
+        title.textContent = exampleName;
+
+        const codeLink = page.querySelector('#example-code-link');
+        codeLink.setAttribute('href', `https://github.com/oceantume/bevy_ui_widgets/blob/main/examples/${exampleName}.rs`);
+
+        import(`./examples/${exampleName}.js`)
+          .then((module) => {
+            return module.default()
+          })
+          .catch((err) => {
+            const isSuccessError = err.message.match(
+              /^Using exceptions for control flow, don't mind me. This isn't actually an error!$/
+            )
+
+            if (!isSuccessError) {
+              throw err;
+            }
+          })
+          .then(() => {
+            page.appendChild(window.document.querySelector('body > canvas'));
+          })
+          .catch(console.error);
+      }
+    }
+
+    const updateCurrentPage = () => {
+      const pageMatch = window.location.hash.match(/#([\w\d\-\_]+)(?::(.+))?/);
+      const pageName = (pageMatch && pageMatch[1]) || 'index';
+
+      for (const page of window.document.querySelectorAll(`.page`)) {
+        const isCurrent = page.getAttribute('data-pagename') === pageName;
+        const hasClass = page.classList.contains('page-current');
+
+        if (isCurrent && !hasClass) {
+          page.classList.add('page-current');
+        } else if (!isCurrent && hasClass) {
+          page.classList.remove('page-current');
+        }
+      }
+
+      pageInitializers[pageName] && pageInitializers[pageName](pageMatch[2]);
+    }
+
+    window.addEventListener('hashchange', updateCurrentPage);
+    updateCurrentPage();
+  </script>
+</body>
+
+</html>
