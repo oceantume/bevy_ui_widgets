@@ -1,6 +1,7 @@
 use std::any::Any;
 
 use bevy_render::prelude::*;
+use bevy_text::prelude::*;
 use bevy_ui::prelude::*;
 
 pub trait ThemePropertyName
@@ -21,6 +22,7 @@ where
 
 macro_rules! define_property {
     ($type: ident, $inner_type: ty, $name_str: expr) => {
+        #[derive(Debug, Clone)]
         pub struct $type(pub $inner_type);
 
         impl ThemePropertyName for $type {
@@ -58,6 +60,12 @@ define_property!(MaxSizeProperty, Size<Val>, "max-size");
 define_property!(AspectRatioProperty, Option<f32>, "aspect-ratio");
 define_property!(OverflowProperty, Overflow, "overflow");
 
-// Define other properties
+// Define text properties
 define_property!(TextColorProperty, Color, "color");
+define_property!(TextFontPathProperty, String, "font-path");
+define_property!(TextFontSizeProperty, f32, "font-size");
+define_property!(TextHorizontalAlignProperty, HorizontalAlign, "text-horizontal-align");
+define_property!(TextVerticalAlignProperty, VerticalAlign, "text-vertical-align");
+
+// Define other properties
 define_property!(ColorProperty, Color, "background-color");
