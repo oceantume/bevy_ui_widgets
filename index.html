@@ -27,6 +27,11 @@
       display: none;
     }
 
+    div[data-pagename=example] {
+      display: flex;
+      flex-direction: column;
+    }
+
     div[data-pagename=example] canvas {
       background-color: black;
       width: 600px;
@@ -59,6 +64,7 @@
 
   <div class="page" data-pagename="example">
     <h2>Example</h2>
+    <a id="example-code-link">View code</a>
   </div>
 
   <script type="module">
@@ -69,6 +75,9 @@
 
         const title = page.querySelector('h2');
         title.textContent = exampleName;
+
+        const codeLink = page.querySelector('#example-code-link');
+        codeLink.setAttribute('href', `https://github.com/oceantume/bevy_ui_widgets/blob/main/examples/${exampleName}.rs`);
 
         import(`./examples/${exampleName}.js`)
           .then((module) => {
@@ -108,7 +117,7 @@
       pageInitializers[pageName] && pageInitializers[pageName](pageMatch[2]);
     }
 
-    addEventListener('hashchange', updateCurrentPage);
+    window.addEventListener('hashchange', updateCurrentPage);
     updateCurrentPage();
   </script>
 </body>
